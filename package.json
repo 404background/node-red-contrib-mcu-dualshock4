@@ -1,0 +1,34 @@
+{
+  "name": "@background404/node-red-contrib-mcu-dualshock4",
+  "version": "0.0.1",
+  "description": "Node-RED MCU node for communicating with DualShock4 via ESP32 Bluetooth Classic",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "node-red": {
+    "version": ">=1.3.7",
+    "nodes": {
+      "dualshock4_in": "node/dualshock4_in.js",
+      "dualshock4_out": "node/dualshock4_out.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/404background/node-red-contrib-mcu-dualshock4.git"
+  },
+  "keywords": [
+    "node-red",
+    "mcu",
+    "esp32",
+    "dualshock4",
+    "ps4",
+    "bluetooth",
+    "moddable"
+  ],
+  "author": "background404",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/404background/node-red-contrib-mcu-dualshock4/issues"
+  },
+  "homepage": "https://github.com/404background/node-red-contrib-mcu-dualshock4#readme"
+}

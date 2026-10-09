@@ -1,0 +1,27 @@
+{
+    "modules": {
+        "ds4_controller": "./ds4_controller"
+    },
+    "preload": [
+        "ds4_controller"
+    ],
+    "platforms": {
+        "esp32": {
+            "build": {
+                "SDKCONFIGPATH": "./esp32/sdkconfig"
+            },
+            "modules": {
+                "*": [
+                    "./esp32/ds4_native",
+                    "./esp32/ps4/ps4",
+                    "./esp32/ps4/ps4_l2cap",
+                    "./esp32/ps4/ps4_parser",
+                    "./esp32/ps4/ps4_spp"
+                ]
+            }
+        },
+        "...": {
+            "error": "DualShock4 requires an ESP32 with Bluetooth Classic"
+        }
+    }
+}

@@ -1,0 +1,91 @@
+<script type="text/javascript">
+    RED.nodes.registerType('dualshock4_out', {
+        category: 'MCU',
+        color: '#4d4ddd',
+        defaults: {
+            name: { value: "" },
+            ds4mac: { value: "", validate: function(v) {
+                if (!v) return true;
+                return /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(v);
+            }},
+            mac: { value: "", validate: function(v) {
+                if (!v) return true;
+                return /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(v);
+            }}
+        },
+        inputs: 1,
+        outputs: 0,
+        icon: "font-awesome/fa-gamepad",
+        align: "right",
+        label: function() {
+            return this.name || "DS4 Output";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="dualshock4_out">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DS4 Output">
+    </div>
+    <div class="form-row">
+        <label for="node-input-ds4mac"><i class="fa fa-gamepad"></i> DS4 MAC</label>
+        <input type="text" id="node-input-ds4mac" placeholder="XX:XX:XX:XX:XX:XX">
+        <div style="margin-left: 105px; font-size: 0.85em; color: #888;">
+            接続を許可するDualShock4のBluetoothMACアドレス。<br>
+            dualshock4 inノードと同じ値を設定してください。
+        </div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-mac"><i class="fa fa-bluetooth"></i> ESP32 MAC</label>
+        <input type="text" id="node-input-mac" placeholder="XX:XX:XX:XX:XX:XX">
+        <div style="margin-left: 105px; font-size: 0.85em; color: #888;">
+            ESP32のBluetoothMACアドレスをこの値に変更します。<br>
+            dualshock4 inノードと同じ値を設定してください。空欄でデフォルト。<br>
+            DS4側のペアリング先MACは <a href="https://github.com/user-none/sixaxispairer" target="_blank">sixaxispairer</a> または <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a> で確認/変更できます。
+        </div>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dualshock4_out">
+    <p>ESP32からBluetooth Classic経由でDualShock4コントローラのLED・振動を制御するノードです。</p>
+
+    <h3>入力</h3>
+    <dl class="message-properties">
+        <dt class="optional">payload.led <span class="property-type">object</span></dt>
+        <dd>LEDカラー設定 <code>{r: 0-255, g: 0-255, b: 0-255}</code></dd>
+        <dt class="optional">payload.rumble <span class="property-type">object</span></dt>
+        <dd>振動設定 <code>{small: 0-255, large: 0-255}</code></dd>
+        <dt class="optional">payload.flash <span class="property-type">object</span></dt>
+        <dd>LED点滅設定 <code>{on: 0-2550, off: 0-2550}</code> (ミリ秒)</dd>
+    </dl>
+
+    <h3>設定</h3>
+    <dl>
+        <dt>DS4 MAC</dt>
+        <dd>接続を許可するDualShock4のBluetoothMACアドレス。
+            dualshock4 inノードと同じ値を設定してください。
+            空欄の場合は全てのDualShock4からの接続を受け付けます。</dd>
+        <dt>ESP32 MAC</dt>
+        <dd>ESP32のBluetoothMACアドレスをこの値に変更します。
+            dualshock4 inノードと同じ値を設定してください。
+            空欄の場合はESP32のデフォルトMACを使用します。
+            DualShock4が現在記憶しているペアリング先MACは、
+            <a href="https://github.com/user-none/sixaxispairer" target="_blank">sixaxispairer</a> または
+            <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a>
+            でDualShock4をUSB接続して確認/変更できます。</dd>
+    </dl>
+
+    <h3>使用例</h3>
+    <p>LEDを赤に設定:</p>
+    <pre>msg.payload = { led: { r: 255, g: 0, b: 0 } };</pre>
+    <p>振動させる:</p>
+    <pre>msg.payload = { rumble: { small: 100, large: 200 } };</pre>
+    <p>LEDを点滅:</p>
+    <pre>msg.payload = { flash: { on: 500, off: 500 } };</pre>
+    <p>複数を同時に設定:</p>
+    <pre>msg.payload = {
+    led: { r: 0, g: 255, b: 0 },
+    rumble: { small: 50, large: 0 }
+};</pre>
+</script>

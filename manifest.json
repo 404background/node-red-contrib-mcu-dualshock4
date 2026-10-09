@@ -1,0 +1,13 @@
+{
+    "include": [
+        "./native/manifest.json"
+    ],
+    "modules": {
+        "dualshock4_in_mcu": "./node/dualshock4_in_mcu",
+        "dualshock4_out_mcu": "./node/dualshock4_out_mcu"
+    },
+    "preload": [
+        "dualshock4_in_mcu",
+        "dualshock4_out_mcu"
+    ]
+}

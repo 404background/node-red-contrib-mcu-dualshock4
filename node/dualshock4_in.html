@@ -1,0 +1,180 @@
+<script type="text/javascript">
+    RED.nodes.registerType('dualshock4_in', {
+        category: 'MCU',
+        color: '#4d4ddd',
+        defaults: {
+            name: { value: "" },
+            ds4mac: { value: "", validate: function(v) {
+                if (!v) return true;
+                return /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(v);
+            }},
+            mac: { value: "", validate: function(v) {
+                if (!v) return true;
+                return /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(v);
+            }},
+            interval: { value: 100, validate: RED.validators.number() },
+            selectedInputs: { value: {} }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "font-awesome/fa-gamepad",
+        label: function() {
+            return this.name || "DS4 Input";
+        },
+        oneditprepare: function() {
+            const buttonMap = {
+                "cross": "Cross",
+                "circle": "Circle",
+                "square": "Square",
+                "triangle": "Triangle",
+                "l1": "L1",
+                "r1": "R1",
+                "l2": "L2",
+                "r2": "R2",
+                "share": "Share",
+                "options": "Options",
+                "l3": "L3",
+                "r3": "R3",
+                "ps": "PS",
+                "touchpad": "Touchpad",
+                "up": "D-Pad Up",
+                "down": "D-Pad Down",
+                "left": "D-Pad Left",
+                "right": "D-Pad Right"
+            };
+
+            const analogMap = {
+                "lx": "Left Stick X",
+                "ly": "Left Stick Y",
+                "rx": "Right Stick X",
+                "ry": "Right Stick Y",
+                "l2_value": "L2 Trigger",
+                "r2_value": "R2 Trigger"
+            };
+
+            const container = $("#node-input-inputs-container");
+            container.empty();
+
+            const savedConfig = this.selectedInputs || {};
+
+            function createCheckbox(key, label) {
+                const checked = savedConfig[key] ? "checked" : "";
+                return `<label style="display: flex; justify-content: space-between; align-items: center; margin-left: 20px;">
+                            ${label}
+                            <input type="checkbox" value="${key}" class="node-input-item" ${checked}
+                                style="display: inline-block; width: auto; vertical-align: top;">
+                        </label>`;
+            }
+
+            container.append(`
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    Select All
+                    <input type="checkbox" id="node-input-select-all" style="display: inline-block; width: auto; vertical-align: top;">
+                </label>
+            `);
+
+            container.append('<div style="margin-top: 8px; font-weight: bold;">Buttons</div>');
+            Object.entries(buttonMap).forEach(([key, label]) => {
+                container.append(createCheckbox(key, label));
+            });
+
+            container.append('<div style="margin-top: 8px; font-weight: bold;">Analog</div>');
+            Object.entries(analogMap).forEach(([key, label]) => {
+                container.append(createCheckbox(key, label));
+            });
+
+            $("#node-input-select-all").change(function() {
+                $(".node-input-item").prop('checked', $(this).prop('checked'));
+            });
+
+            function updateSelectAllState() {
+                const allChecked = $(".node-input-item:checked").length === $(".node-input-item").length;
+                $("#node-input-select-all").prop('checked', allChecked);
+            }
+
+            $(document).on('change', '.node-input-item', updateSelectAllState);
+            updateSelectAllState();
+        },
+
+        oneditsave: function() {
+            const selectedInputs = {};
+            $(".node-input-item").each(function() {
+                selectedInputs[$(this).val()] = $(this).is(":checked");
+            });
+            this.selectedInputs = selectedInputs;
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="dualshock4_in">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DS4 Input">
+    </div>
+    <div class="form-row">
+        <label for="node-input-ds4mac"><i class="fa fa-gamepad"></i> DS4 MAC</label>
+        <input type="text" id="node-input-ds4mac" placeholder="XX:XX:XX:XX:XX:XX">
+        <div style="margin-left: 105px; font-size: 0.85em; color: #888;">
+            接続を許可するDualShock4のBluetoothMACアドレス。<br>
+            空欄の場合は全てのDS4からの接続を受け付けます。
+        </div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-mac"><i class="fa fa-bluetooth"></i> ESP32 MAC</label>
+        <input type="text" id="node-input-mac" placeholder="XX:XX:XX:XX:XX:XX">
+        <div style="margin-left: 105px; font-size: 0.85em; color: #888;">
+            ESP32のBluetoothMACアドレスをこの値に変更します。<br>
+            DS4が記憶しているペアリング先MACを指定してください。空欄でデフォルト。<br>
+            DS4側の値は <a href="https://github.com/user-none/sixaxispairer" target="_blank">sixaxispairer</a> または <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a> で確認/変更できます。
+        </div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-interval"><i class="fa fa-clock-o"></i> Interval (ms)</label>
+        <input type="number" id="node-input-interval" placeholder="100">
+    </div>
+    <div class="form-row">
+        <label>Inputs</label>
+        <div id="node-input-inputs-container"></div>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dualshock4_in">
+    <p>ESP32上でBluetooth Classic経由でDualShock4コントローラの入力を読み取るノードです。</p>
+
+    <h3>入力</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>停止中の場合、読み取りを再開します（フロー開始時は自動で読み取りを開始します）。</dd>
+        <dt class="optional">kill <span class="property-type">boolean</span></dt>
+        <dd><code>true</code>を送ると出力を停止します。</dd>
+    </dl>
+
+    <h3>出力</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>選択されたボタンとスティックの状態を含むオブジェクト。</dd>
+        <dt>payload.buttons <span class="property-type">object</span></dt>
+        <dd>ボタン状態 (true/false)</dd>
+        <dt>payload.analog <span class="property-type">object</span></dt>
+        <dd>スティック (-128~127) / トリガー (0~255)</dd>
+        <dt>payload.status <span class="property-type">object</span></dt>
+        <dd>バッテリー残量、充電状態</dd>
+    </dl>
+
+    <h3>設定</h3>
+    <dl>
+        <dt>DS4 MAC</dt>
+        <dd>接続を許可するDualShock4コントローラのBluetoothMACアドレスを指定します。
+            指定した場合、このMACアドレスからの接続のみを受け付けます。
+            空欄の場合は全てのDualShock4からの接続を受け付けます。</dd>
+        <dt>ESP32 MAC</dt>
+        <dd>ESP32のBluetoothMACアドレスをこの値に変更します。
+            DualShock4が記憶しているペアリング先のMACアドレス（通常はPS4コンソールのMAC）を指定してください。
+            空欄の場合はESP32のデフォルトMACを使用します（事前に <a href="https://github.com/user-none/sixaxispairer" target="_blank">sixaxispairer</a> または <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a> でDualShock4側のMACを変更する必要があります）。
+            DualShock4が現在記憶しているペアリング先MACの確認も同じツールで行えます。</dd>
+        <dt>Interval</dt>
+        <dd>データ取得間隔（ミリ秒）。デフォルト100ms。</dd>
+        <dt>Inputs</dt>
+        <dd>出力に含めるボタン/スティックを選択します。未選択の場合は全て出力します。</dd>
+    </dl>
+</script>

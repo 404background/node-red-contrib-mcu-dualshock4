@@ -1,0 +1,28 @@
+{
+    "include": [
+        "$(MODDABLE)/examples/manifest_base.json",
+        "$(MODDABLE)/examples/manifest_net.json",
+        "../../native/manifest.json"
+    ],
+    "config": {
+        "ds4mac": ""
+    },
+    "modules": {
+        "*": [
+            "./main"
+        ]
+    },
+    "creation": {
+        "keys": {
+            "initial": 32,
+            "incremental": 32,
+            "name": 53,
+            "symbol": 3
+        },
+        "parser": {
+            "buffer": 1024,
+            "table": 17
+        },
+        "main": "main"
+    }
+}

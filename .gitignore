@@ -1,3 +1,12 @@
+.claude/
+
+# Reference repositories (not included in this project)
+/PS4-esp32/
+/moddable/
+/node-red-contrib-python-dualshock4/
+
+# Node
+
 # Logs
 logs
 *.log
