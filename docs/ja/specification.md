@@ -19,8 +19,11 @@ ESP32 (Moddable SDK + XS)
     |     シングルトン / リスナーパターン
     |     接続状態管理・ネイティブブリッジ
     |
+    +-- dualshock4_config_mcu.js (設定ノード)
+    |     接続設定 (DS4 MAC・取得間隔)、in/outへの状態通知
+    |
     +-- dualshock4_in_mcu.js     dualshock4_out_mcu.js
-    |     入力読み取り              LED/振動制御
+    |     入力受信                  LED/振動・unpair
     v
 Node-RED MCU Runtime
 ```
@@ -63,9 +66,12 @@ Report 0x11 (78 bytes):
 
 ```
 node-red-contrib-mcu-dualshock4/
-├── package.json                  # Node-REDノード登録 (2ノード)
+├── package.json                  # Node-REDノード登録 (3ノード)
 ├── manifest.json                 # Node-RED MCU用マニフェスト (MCUノード + native)
 ├── node/
+│   ├── dualshock4_config.html    # 設定ノード エディタUI
+│   ├── dualshock4_config.js      # 設定ノード PC側ロジック
+│   ├── dualshock4_config_mcu.js  # 設定ノード MCUランタイム
 │   ├── dualshock4_in.html        # 入力ノード エディタUI
 │   ├── dualshock4_in.js          # 入力ノード PC側ロジック
 │   ├── dualshock4_in_mcu.js      # 入力ノード MCUランタイム

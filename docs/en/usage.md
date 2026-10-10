@@ -26,11 +26,25 @@ The Bluetooth Classic (Bluedroid + HID Host) settings are included in `native/es
 
 ## Nodes
 
+| Node | Role |
+|------|------|
+| **dualshock4 config** | Configuration node. Sets the connection to the DualShock4 (DS4 MAC, interval), shared by the in / out nodes |
+| **dualshock4 in** | Receives controller input |
+| **dualshock4 out** | Sends LED / rumble commands to the controller |
+
+Only one DualShock4 connection is supported. Use a single configuration node.
+
+### dualshock4 config
+
+**Settings:**
+- **DS4 MAC** - Bluetooth MAC address of the DualShock4 to pair / connect (empty: pair with the first DualShock4 found)
+- **Interval** - Polling interval of the controller state (ms, default 100)
+
 ### dualshock4 in
 
-Reads input from the DualShock4 controller. A message is sent only when a selected input changes.
+Receives controller input. A message is sent only when a selected input changes.
 
-**Output data:**
+**Output data (`msg.payload`):**
 
 | Category | Property | Data | Type |
 |---------|-----------|--------|-----|
@@ -45,17 +59,12 @@ Reads input from the DualShock4 controller. A message is sent only when a select
 | status | charging | Charging | bool |
 
 **Settings:**
-- **DS4 MAC** - Bluetooth MAC address of the DualShock4 to pair / connect (empty: pair with the first DualShock4 found)
-- **Interval** - Polling interval (ms, default 100)
+- **DS4** - The dualshock4 config node to use
 - **Inputs** - Buttons / sticks to include in the output (all selected by default). `status` is always included
-
-**Input messages:**
-- Starts listening automatically when the flow starts
-- `msg.unpair = true` - Delete all pairing information stored on the ESP32 and wait for pairing again
 
 ### dualshock4 out
 
-Controls the LED and rumble of the DualShock4 controller.
+Sends LED / rumble commands to the controller.
 
 **Input messages:**
 
@@ -74,12 +83,19 @@ msg.payload = {
     led: { r: 0, g: 255, b: 0 },
     rumble: { small: 50, large: 0 }
 };
+
+// Delete pairing information and wait for pairing again
+msg.unpair = true;
 ```
 
-Unspecified items keep their previous values. Rumble and flash stop with `0`.  
-The controller is the one selected by **DS4 MAC** on the dualshock4 in node (the out node has no settings).
+Unspecified items keep their previous values. Rumble and flash stop with `0`.
+
+**Settings:**
+- **DS4** - The dualshock4 config node to use
 
 ### Node Status
+
+The in / out nodes show the connection state.
 
 | Status | Meaning |
 |------|------|
@@ -95,7 +111,7 @@ The controller is the one selected by **DS4 MAC** on the dualshock4 in node (the
 2. Hold **SHARE + PS** on the DualShock4 until the light bar double-flashes (pairing mode)
 3. The ESP32 connects to the DualShock4 and pairs automatically (the node status becomes `connected`)
 
-If DS4 MAC is empty, the ESP32 pairs with the first DualShock4 found in pairing mode.  
+If DS4 MAC in the dualshock4 config node is empty, the ESP32 pairs with the first DualShock4 found in pairing mode.  
 To use a specific DualShock4 only, or when several controllers are nearby, set DS4 MAC.
 
 ### Checking the DualShock4 MAC Address
@@ -117,7 +133,7 @@ Even after the ESP32 restarts, **just press the PS button** to connect.
 ### Re-pairing
 
 - With DS4 MAC set: if that DualShock4 is not paired yet, the ESP32 waits for pairing automatically. To switch to another DualShock4, change DS4 MAC
-- With DS4 MAC empty: once paired, no new controller is searched for. Send `msg.unpair = true` to the dualshock4 in node to delete the pairing information and wait for pairing again
+- With DS4 MAC empty: once paired, no new controller is searched for. Send `msg.unpair = true` to the dualshock4 out node to delete the pairing information and wait for pairing again
 - If the DualShock4 was paired with a PS4 console or PC in the meantime, also send `msg.unpair = true` and pair again
 
 ## Testing with the Moddable SDK Only

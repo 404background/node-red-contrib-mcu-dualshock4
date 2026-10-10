@@ -18,6 +18,7 @@ npm install @background404/node-red-contrib-mcu-dualshock4
 
 ## Nodes
 
+- **dualshock4 config** - Connection to the DualShock4 (DS4 MAC, interval), shared by the nodes below
 - **dualshock4 in** - Outputs `msg.payload` with `buttons`, `analog` and `status` when the input changes
 - **dualshock4 out** - Sets the LED / rumble / flash from `msg.payload`, e.g. `{ led: { r: 255, g: 0, b: 0 } }`
 
@@ -27,7 +28,7 @@ npm install @background404/node-red-contrib-mcu-dualshock4
 2. Hold **SHARE + PS** on the DualShock4 until the light bar double-flashes
 3. The ESP32 pairs automatically. After that, just press **PS** to connect
 
-Set **DS4 MAC** in the node to pair with a specific controller only.
+Set **DS4 MAC** in the dualshock4 config node to pair with a specific controller only.
 
 ## Documentation
 

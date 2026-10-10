@@ -19,8 +19,11 @@ ESP32 (Moddable SDK + XS)
     |     Singleton / listener pattern
     |     Connection state, native bridge
     |
+    +-- dualshock4_config_mcu.js (configuration node)
+    |     Connection settings (DS4 MAC, interval), status to in/out
+    |
     +-- dualshock4_in_mcu.js     dualshock4_out_mcu.js
-    |     Input                     LED / rumble
+    |     Input                     LED / rumble / unpair
     v
 Node-RED MCU Runtime
 ```
@@ -63,9 +66,12 @@ Report 0x11 (78 bytes):
 
 ```
 node-red-contrib-mcu-dualshock4/
-├── package.json                  # Node-RED node registration (2 nodes)
+├── package.json                  # Node-RED node registration (3 nodes)
 ├── manifest.json                 # Node-RED MCU manifest (MCU nodes + native)
 ├── node/
+│   ├── dualshock4_config.html    # Configuration node editor UI
+│   ├── dualshock4_config.js      # Configuration node editor-side logic
+│   ├── dualshock4_config_mcu.js  # Configuration node MCU runtime
 │   ├── dualshock4_in.html        # Input node editor UI
 │   ├── dualshock4_in.js          # Input node editor-side logic
 │   ├── dualshock4_in_mcu.js      # Input node MCU runtime

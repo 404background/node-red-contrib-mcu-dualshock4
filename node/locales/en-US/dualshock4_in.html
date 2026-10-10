@@ -1,11 +1,5 @@
 <script type="text/html" data-help-name="dualshock4_in">
-    <p>Reads a DualShock4 controller over Bluetooth Classic on the ESP32.</p>
-
-    <h3>Inputs</h3>
-    <dl class="message-properties">
-        <dt class="optional">unpair <span class="property-type">boolean</span></dt>
-        <dd><code>true</code> deletes all pairings stored on the ESP32 and waits for pairing again.</dd>
-    </dl>
+    <p>Receives input from the DualShock4 set in the <code>dualshock4 config</code> node.</p>
 
     <h3>Outputs</h3>
     <p>Sent only when a selected input changes.</p>
@@ -19,26 +13,15 @@
         <dd><code>battery</code> (0 to 15), <code>charging</code></dd>
     </dl>
 
-    <h3>Pairing</h3>
-    <p>First time only: hold <b>SHARE + PS</b> on the DualShock4 until the light bar double-flashes.
-       The ESP32 pairs automatically. After that, press <b>PS</b> to connect.</p>
-
-    <h3>Details</h3>
+    <h3>Properties</h3>
     <dl class="message-properties">
-        <dt>DS4 MAC</dt>
-        <dd>Bluetooth address of the DualShock4 to use. Other controllers are rejected.
-            Empty: pairs with the first DualShock4 found in pairing mode.
-            The address is shown as "Device Address" in
-            <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a> (USB).</dd>
-        <dt>Interval</dt>
-        <dd>Polling interval in milliseconds.</dd>
         <dt>Inputs</dt>
-        <dd>Buttons and sticks included in the output.</dd>
+        <dd>Buttons and sticks included in the output. <code>status</code> is always included.</dd>
     </dl>
 
     <h3>Status</h3>
     <ul>
-        <li><b>pairing</b> - searching for a DualShock4 in pairing mode</li>
+        <li><b>pairing</b> - searching for a DualShock4 in pairing mode (hold SHARE + PS)</li>
         <li><b>waiting (press PS)</b> - paired, press PS on the DualShock4</li>
         <li><b>connected</b> - connected</li>
     </ul>

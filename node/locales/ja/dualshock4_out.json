@@ -1,8 +1,8 @@
 {
     "dualshock4_out": {
         "label": {
+            "controller": "DS4",
             "name": "名前"
-        },
-        "tip": "dualshock4 in ノードの設定（DS4 MAC）で接続したDualShock4を制御します。"
+        }
     }
 }

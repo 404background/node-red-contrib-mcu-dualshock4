@@ -1,16 +1,12 @@
 {
     "dualshock4_in": {
         "label": {
+            "controller": "DS4",
             "name": "名前",
-            "ds4mac": "DS4 MAC",
-            "interval": "取得間隔",
             "inputs": "出力項目",
             "selectAll": "すべて選択",
             "buttons": "ボタン",
             "analog": "アナログ"
-        },
-        "placeholder": {
-            "ds4mac": "空欄: ペアリングモードの最初のDS4"
         }
     }
 }

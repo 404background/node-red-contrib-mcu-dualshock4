@@ -1,5 +1,5 @@
 <script type="text/html" data-help-name="dualshock4_out">
-    <p><code>dualshock4 in</code> ノードで接続したDualShock4のLED・振動を制御します。</p>
+    <p><code>dualshock4 config</code> ノードで設定したDualShock4のLED・振動を制御します。</p>
 
     <h3>入力</h3>
     <dl class="message-properties">
@@ -9,6 +9,8 @@
         <dd>振動 <code>{ small, large }</code>（0〜255、0で停止）</dd>
         <dt class="optional">payload.flash <span class="property-type">object</span></dt>
         <dd>ライトバーの点滅 <code>{ on, off }</code>（ミリ秒、最大2550、0で停止）</dd>
+        <dt class="optional">unpair <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> を送ると、ESP32に記録されたペアリング情報を全て削除し、再ペアリングを待ちます。</dd>
     </dl>
     <p>指定しなかった項目は前回の値を保持します。</p>
 

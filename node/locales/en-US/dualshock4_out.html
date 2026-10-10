@@ -1,5 +1,5 @@
 <script type="text/html" data-help-name="dualshock4_out">
-    <p>Controls the LED and rumble of the DualShock4 connected by the <code>dualshock4 in</code> node.</p>
+    <p>Controls the LED and rumble of the DualShock4 set in the <code>dualshock4 config</code> node.</p>
 
     <h3>Inputs</h3>
     <dl class="message-properties">
@@ -9,6 +9,8 @@
         <dd>Rumble <code>{ small, large }</code> (0 to 255, 0 stops)</dd>
         <dt class="optional">payload.flash <span class="property-type">object</span></dt>
         <dd>Light bar flash <code>{ on, off }</code> in milliseconds (up to 2550, 0 stops)</dd>
+        <dt class="optional">unpair <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> deletes all pairings stored on the ESP32 and waits for pairing again.</dd>
     </dl>
     <p>Unspecified items keep their previous values.</p>
 

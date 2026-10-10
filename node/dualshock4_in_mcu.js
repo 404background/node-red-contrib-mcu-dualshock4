@@ -1,40 +1,30 @@
 /*
  * dualshock4_in - MCU runtime (ESP32)
  *
- * Reads DualShock4 controller input via shared DS4Controller instance.
+ * Receives DualShock4 input through the dualshock4_config node.
  * Sends a message only when the selected inputs change.
- * msg.unpair === true forgets paired controllers.
  */
 
 import { Node } from "nodered";
-import DS4Controller from "ds4_controller";
 
 class DualShock4InNode extends Node {
-    #controller;
     #selectedInputs;
     #last;
 
     onStart(config) {
         super.onStart(config);
 
-        const interval = Number(config.interval) > 0 ? Number(config.interval) : 100;
         this.#selectedInputs = config.selectedInputs || {};
-        this.#controller = DS4Controller.getInstance();
 
-        this.#controller.addListener({
-            connect: () => {
-                this.status({ fill: "green", shape: "dot", text: "connected" });
-            },
+        const controller = RED.nodes.getNode(config.controller);
+        if (!controller?.attach) {
+            this.status({ fill: "red", shape: "ring", text: "no controller" });
+            return;
+        }
+
+        controller.attach(this, {
             disconnect: () => {
                 this.#last = undefined;
-                this.status({ fill: "red", shape: "ring", text: "disconnected" });
-            },
-            state: (state) => {
-                if (state === "pairing") {
-                    this.status({ fill: "yellow", shape: "dot", text: "pairing" });
-                } else if (state === "waiting") {
-                    this.status({ fill: "yellow", shape: "ring", text: "waiting (press PS)" });
-                }
             },
             data: (data) => {
                 const payload = this.#filterInputs(data);
@@ -45,20 +35,6 @@ class DualShock4InNode extends Node {
                 }
             }
         });
-
-        try {
-            this.#controller.start(config.ds4mac || "", interval);
-        } catch (e) {
-            this.status({ fill: "red", shape: "ring", text: "error" });
-            this.error(e?.message ?? e);
-        }
-    }
-
-    onMessage(msg, done) {
-        if (msg.unpair === true) {
-            this.#controller.unpair();
-        }
-        done?.();
     }
 
     /* No selection saved (new node): everything. Otherwise only checked items. */

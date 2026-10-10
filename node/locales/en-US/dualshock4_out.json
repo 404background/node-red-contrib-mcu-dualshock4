@@ -1,8 +1,8 @@
 {
     "dualshock4_out": {
         "label": {
+            "controller": "DS4",
             "name": "Name"
-        },
-        "tip": "Controls the DualShock4 connected via the dualshock4 in node settings (DS4 MAC)."
+        }
     }
 }

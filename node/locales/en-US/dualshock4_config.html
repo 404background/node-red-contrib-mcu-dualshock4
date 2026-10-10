@@ -1,0 +1,22 @@
+<script type="text/html" data-help-name="dualshock4_config">
+    <p>Connection to one DualShock4 controller over Bluetooth Classic on the ESP32.
+       Shared by the <code>dualshock4 in</code> and <code>dualshock4 out</code> nodes.</p>
+
+    <h3>Properties</h3>
+    <dl class="message-properties">
+        <dt>DS4 MAC</dt>
+        <dd>Bluetooth address of the DualShock4 to use. Other controllers are rejected.
+            Empty: pairs with the first DualShock4 found in pairing mode.
+            The address is shown as "Device Address" in
+            <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a> (USB).</dd>
+        <dt>Interval</dt>
+        <dd>Polling interval of the controller state in milliseconds.</dd>
+    </dl>
+
+    <h3>Pairing</h3>
+    <p>First time only: hold <b>SHARE + PS</b> on the DualShock4 until the light bar double-flashes.
+       The ESP32 pairs automatically. After that, press <b>PS</b> to connect.
+       To pair again, send <code>msg.unpair = true</code> to a <code>dualshock4 out</code> node.</p>
+
+    <p>Only one DualShock4 connection is supported. Use a single configuration node.</p>
+</script>

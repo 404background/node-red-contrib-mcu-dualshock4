@@ -1,0 +1,21 @@
+<script type="text/html" data-help-name="dualshock4_config">
+    <p>ESP32とDualShock4の接続（Bluetooth Classic）を設定します。
+       <code>dualshock4 in</code> / <code>dualshock4 out</code> ノードで共有します。</p>
+
+    <h3>プロパティ</h3>
+    <dl class="message-properties">
+        <dt>DS4 MAC</dt>
+        <dd>使用するDualShock4のBluetoothアドレス。他のコントローラからの接続は拒否します。
+            空欄の場合は、ペアリングモードで最初に見つかったDualShock4とペアリングします。
+            アドレスは <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a>（USB接続）の「Device Address」で確認できます。</dd>
+        <dt>取得間隔</dt>
+        <dd>コントローラの状態を読み取る間隔（ミリ秒）。</dd>
+    </dl>
+
+    <h3>ペアリング</h3>
+    <p>初回のみ、DualShock4の <b>SHARE + PS</b> をライトバーが素早く点滅するまで長押しします。
+       ESP32が自動でペアリングします。以降は <b>PS</b> ボタンを押すだけで接続されます。
+       ペアリングし直す場合は、<code>dualshock4 out</code> ノードに <code>msg.unpair = true</code> を送ります。</p>
+
+    <p>接続できるDualShock4は1台です。設定ノードは1つだけ使用してください。</p>
+</script>
