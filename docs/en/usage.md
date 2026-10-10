@@ -165,7 +165,8 @@ To use a specific DualShock4 only, or when several controllers are nearby, set D
 ### Checking the DualShock4 MAC Address
 
 - **[SixaxisPairTool](https://sixaxispairtool.en.lo4d.com/windows) (Windows GUI, recommended)**  
-  Connect the DualShock4 to a PC with a USB cable to see its own MAC address (Device Address) and the currently stored pairing target (Current Master)
+  Connect the DualShock4 to a PC with a USB cable to see its own MAC address (Device Address) and the currently stored pairing target (Current Master).  
+  Set **Device Address** as DS4 MAC. After pairing with the ESP32, Current Master shows the ESP32's own address (setting it is reported as an error)
 - **Bluetooth settings on a PC / smartphone**  
   Shows the address of the DualShock4 ("Wireless Controller") in pairing mode
 - **Moddable SDK test program** ([below](#testing-with-the-moddable-sdk-only))  

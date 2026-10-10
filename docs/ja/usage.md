@@ -165,7 +165,8 @@ in / out ノードに接続状態が表示されます。
 ### DualShock4のMACアドレスの確認方法
 
 - **[SixaxisPairTool](https://sixaxispairtool.en.lo4d.com/windows)（Windows GUI、推奨）**  
-  DualShock4をUSBケーブルでPCに接続すると、本体のMACアドレス（Device Address）と、現在記憶しているペアリング先（Current Master）を確認できます
+  DualShock4をUSBケーブルでPCに接続すると、本体のMACアドレス（Device Address）と、現在記憶しているペアリング先（Current Master）を確認できます。  
+  DS4 MACに設定するのは **Device Address** です。ESP32とペアリングした後は、Current MasterにESP32自身のアドレスが表示されます（設定するとエラーになります）
 - **PC・スマートフォンのBluetooth設定画面**  
   ペアリングモード中のDualShock4（"Wireless Controller"）のアドレスを確認できます
 - **Moddable SDK単体の動作確認プログラム**（[後述](#moddable-sdkでの単体動作確認)）  

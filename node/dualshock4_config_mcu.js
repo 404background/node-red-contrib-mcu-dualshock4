@@ -29,6 +29,15 @@ class DualShock4ConfigNode extends Node {
         this.#controller = DS4Controller.getInstance();
         try {
             this.#controller.start(ds4mac, interval);
+
+            /* SixaxisPairTool shows the ESP32 as "Current Master" after pairing */
+            if (ds4mac.toLowerCase() === this.#controller.localAddress) {
+                this.#controller.stop();
+                this.#error = "DS4 MAC is the ESP32 address";
+                this.error(`${this.#error}: set the DualShock4's own address ("Device Address" in SixaxisPairTool, not "Current Master")`);
+                return;
+            }
+
             this.#controller.addListener({
                 error: (message) => this.warn(`DS4: ${message}`)
             });
