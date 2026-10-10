@@ -37,6 +37,7 @@ Node-RED MCU Runtime
    - DS4 MAC空欄（Moddable SDK単体のテストプログラムのみ。Node-REDでは必須） → Inquiryで "Wireless Controller"（またはCoD: Peripheral/Gamepad）を探索して接続
    - Secure Simple Pairing（Just Works）でボンディング。リンクキーはNVSに保存
 3. ペアリング済みの場合: 起動時にボンディング済みデバイスをHID Hostに登録し、DualShock4からの接続（PSボタン）を受け付け
+   - 未接続の間は6秒ごとに約2.6秒のInquiryを行い、DS4 MACのDualShock4がペアリングモード（SHARE + PS）で見つかった場合は、古いボンディング情報を削除して再ペアリング（DualShock4が記憶するペアリング先は1台のみのため、別の機器とペアリングされた後の復帰用）
 4. 接続後、Feature Report 0x02を読み出してDualShock4をフルレポート(0x11)モードに切り替え
 
 **入力レポート (DualShock4 → ESP32, Interrupt channel):**

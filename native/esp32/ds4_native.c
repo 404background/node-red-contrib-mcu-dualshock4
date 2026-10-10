@@ -66,11 +66,14 @@
 #define DS4_OUTPUT_REPORT_SIZE 78
 #define DS4_RETRY_MS 2000
 #define DS4_INQUIRY_LEN 10      /* x 1.28s */
+#define DS4_WATCH_MS 6000
+#define DS4_WATCH_INQUIRY_LEN 2 /* x 1.28s */
 
 enum {
     kPairIdle = 0,
     kPairDiscovering,
-    kPairConnecting
+    kPairConnecting,
+    kPairWatching       /* bonded: looking for the controller in pairing mode */
 };
 
 typedef struct {
@@ -330,10 +333,22 @@ static void service(void) {
         return;
     if (nowMs() < gNextAttempt)
         return;
-    if (!needsPairing())
-        return;     /* bonded: wait for the controller to connect (PS button) */
-
     esp_err_t err;
+    if (!needsPairing()) {
+        if (!gHasTarget)
+            return;
+        /* Bonded: the controller connects by itself when PS is pressed.
+         * The DualShock4 remembers only one host, so it may have been paired
+         * with another ESP32 since. It is discoverable only in pairing mode
+         * (SHARE + PS): when it shows up, pair again. */
+        gFound = 0;
+        gPairState = kPairWatching;
+        if (esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, DS4_WATCH_INQUIRY_LEN, 0) != ESP_OK)
+            gPairState = kPairIdle;
+        gNextAttempt = nowMs() + DS4_WATCH_MS;
+        return;
+    }
+
     if (gHasTarget) {
         char str[18];
         formatMac(gTarget, str);
@@ -362,7 +377,13 @@ static void service(void) {
 static void gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param) {
     switch (event) {
     case ESP_BT_GAP_DISC_RES_EVT:
-        if ((gPairState == kPairDiscovering) && !gFound && isController(param)) {
+        if ((gPairState == kPairWatching) && !gFound &&
+            !memcmp(param->disc_res.bda, gTarget, ESP_BD_ADDR_LEN) && isController(param)) {
+            memcpy(gFoundAddr, param->disc_res.bda, ESP_BD_ADDR_LEN);
+            gFound = 1;
+            esp_bt_gap_cancel_discovery();
+        }
+        else if ((gPairState == kPairDiscovering) && !gFound && isController(param)) {
             memcpy(gFoundAddr, param->disc_res.bda, ESP_BD_ADDR_LEN);
             gFound = 1;
             esp_bt_gap_cancel_discovery();
@@ -370,7 +391,20 @@ static void gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *para
         break;
 
     case ESP_BT_GAP_DISC_STATE_CHANGED_EVT:
-        if ((param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STOPPED) && (gPairState == kPairDiscovering)) {
+        if ((param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STOPPED) && (gPairState == kPairWatching)) {
+            gPairState = kPairIdle;
+            if (gFound && !gConnected) {
+                /* The old link key is no longer valid in the controller */
+                ESP_LOGI(DS4_TAG, "pairing: controller in pairing mode, pairing again");
+                esp_bt_gap_remove_bond_device(gFoundAddr);
+                gPairState = kPairConnecting;
+                if (esp_bt_hid_host_connect(gFoundAddr) != ESP_OK) {
+                    gPairState = kPairIdle;
+                    gNextAttempt = nowMs() + DS4_RETRY_MS;
+                }
+            }
+        }
+        else if ((param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STOPPED) && (gPairState == kPairDiscovering)) {
             if (gFound) {
                 char str[18];
                 formatMac(gFoundAddr, str);
@@ -583,7 +617,7 @@ void xs_ds4_get_state(xsMachine *the) {
         xsmcSetString(xsResult, "connected");
     else if (!gHidReady)
         xsmcSetString(xsResult, "starting");
-    else if ((gPairState != kPairIdle) || needsPairing())
+    else if ((gPairState == kPairDiscovering) || (gPairState == kPairConnecting) || needsPairing())
         xsmcSetString(xsResult, "pairing");
     else
         xsmcSetString(xsResult, "waiting");

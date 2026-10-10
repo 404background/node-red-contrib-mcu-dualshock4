@@ -15,7 +15,8 @@
     <h3>ペアリング</h3>
     <p>初回のみ、DualShock4の <b>SHARE + PS</b> をライトバーが素早く点滅するまで長押しします。
        ESP32が自動でペアリングします。以降は <b>PS</b> ボタンを押すだけで接続されます。
-       ペアリングし直す場合は、<code>dualshock4 out</code> ノードに <code>msg.unpair = true</code> を送ります。</p>
+       DualShock4が記憶できるペアリング先は1台だけです。PS4・PC・別のESP32とペアリングした後は、
+       もう一度 <b>SHARE + PS</b> を長押しすればこのESP32とペアリングし直します。</p>
 
     <p>接続できるDualShock4は1台です。設定ノードは1つだけ使用してください。</p>
 </script>

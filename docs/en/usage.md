@@ -182,7 +182,14 @@ Even after the ESP32 restarts, **just press the PS button** to connect.
 ### Re-pairing
 
 - With DS4 MAC set: if that DualShock4 is not paired yet, the ESP32 waits for pairing automatically. To switch to another DualShock4, change DS4 MAC
-- If the DualShock4 was paired with a PS4 console or PC in the meantime, send `msg.unpair = true` to the dualshock4 out node to delete the pairing information and pair again
+- Even after the DualShock4 was paired with a PS4 console, PC or another ESP32, hold **SHARE + PS** to put it in pairing mode: the ESP32 detects it and pairs again automatically (`msg.unpair` is not needed)
+
+### Using several ESP32s
+
+The DualShock4 remembers only one host. Pairing with a new host overwrites the previous one, so it cannot be registered with several ESP32s at the same time.  
+To switch, power on the ESP32 you want to use and hold **SHARE + PS** on the DualShock4. It pairs with that ESP32 again, and afterwards the PS button is enough to connect.
+
+- A DualShock4 in pairing mode pairs with whichever powered-on ESP32 (with the same DS4 MAC) finds it first. Power off the other ESP32s when switching
 
 ### "rejected xx:xx:xx:xx:xx:xx: not the DS4 MAC"
 
