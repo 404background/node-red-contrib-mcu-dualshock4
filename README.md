@@ -8,7 +8,7 @@ ESP32上でBluetooth Classicを使用してDualShock4と通信します。
 このノードは、[Node-RED MCU Edition](https://github.com/phoddie/node-red-mcu)で動作するDualShock4コントローラノードです。  
 ESP32の開発ボード上で、Bluetooth Classic経由でPS4コントローラの入力データ(ボタン、スティック、トリガー)を取得し、LEDや振動を制御できます。
 
-ペアリングはDualShock4のペアリングモード（SHARE + PS 長押し）で行うため、sixaxispairer などのツールでMACアドレスを書き換える必要はありません。
+ペアリングはDualShock4のペアリングモード（SHARE + PS 長押し）で行うため、ツールでDualShock4側のMACアドレスを書き換える必要はありません。
 
 ## 対応ボード
 
@@ -91,7 +91,17 @@ msg.payload = {
 
 DS4 MACを空欄にした場合は、ペアリングモードで最初に見つかったDualShock4とペアリングします。  
 特定のDualShock4だけを使いたい場合や、近くに複数のコントローラがある場合は、DS4 MACを指定してください。
-DualShock4のMACアドレスは、ペアリングモード中にPCやスマートフォンのBluetooth設定画面などで確認できます。
+
+### DualShock4のMACアドレスの確認方法
+
+- **[SixaxisPairTool](https://sixaxispairtool.en.lo4d.com/windows)（Windows GUI、推奨）**  
+  DualShock4をUSBケーブルでPCに接続すると、本体のMACアドレス（Device Address）と、現在記憶しているペアリング先（Current Master）を確認できます
+- **PC・スマートフォンのBluetooth設定画面**  
+  ペアリングモード中のDualShock4（"Wireless Controller"）のアドレスを確認できます
+- **xsbugのログ**  
+  DS4 MACを空欄にして一度接続すると、`DS4: connected aa:bb:cc:dd:ee:ff` のように接続したDualShock4のアドレスが出力されます
+
+> [sixaxispairer](https://github.com/user-none/sixaxispairer)（CLI）はPS3用コントローラ（SixAxis / Move）向けのツールで、DualShock4には対応していません。
 
 ### 2回目以降
 
@@ -241,6 +251,11 @@ Node-REDを経由せず、Moddable SDK単体でC拡張（Bluetooth実装）が�
    ```
 
 ## 参考リポジトリ・サードパーティコード
+
+### SixaxisPairTool
+
+- 配布元: [SixaxisPairTool](https://sixaxispairtool.en.lo4d.com/windows)
+- 用途: DualShock4本体のMACアドレス・ペアリング先の確認（任意）
 
 ### PS4-esp32
 

@@ -12,6 +12,11 @@
  *   Hold SHARE + PS on the DualShock4 until the light bar double-flashes.
  *   The ESP32 pairs with the controller given by ds4mac, or with the first
  *   controller found when ds4mac is empty. Afterwards press PS to connect.
+ *
+ * Checking the DualShock4's own MAC address (for ds4mac):
+ *   Connect the DualShock4 to a PC via USB and read "Device Address" in
+ *   SixaxisPairTool (Windows): https://sixaxispairtool.en.lo4d.com/windows
+ *   (sixaxispairer by user-none supports PS3 controllers only.)
  */
 
 import DS4Controller from "ds4_controller";

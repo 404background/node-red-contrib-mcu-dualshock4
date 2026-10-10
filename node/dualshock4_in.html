@@ -112,7 +112,8 @@
         <input type="text" id="node-input-ds4mac" placeholder="XX:XX:XX:XX:XX:XX">
         <div style="margin-left: 105px; font-size: 0.85em; color: #888;">
             ペアリング・接続するDualShock4本体のBluetoothMACアドレス。<br>
-            空欄の場合はペアリングモードの最初のDS4とペアリングします。
+            空欄の場合はペアリングモードの最初のDS4とペアリングします。<br>
+            DS4のMACは <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a> (USB接続) で確認できます。
         </div>
     </div>
     <div class="form-row">
@@ -160,7 +161,9 @@
         <dd>ペアリング・接続するDualShock4本体のBluetoothMACアドレスを指定します。
             指定した場合、このコントローラのみとペアリングし、他のコントローラからの接続は拒否します。
             空欄の場合は、ペアリングモードで見つかった最初のDualShock4とペアリングします。
-            MACアドレスはペアリングモード中にPCやスマートフォンのBluetooth設定などで確認できます。</dd>
+            MACアドレスは、DualShock4をUSB接続して
+            <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a>
+            の「Device Address」で確認できます（ペアリングモード中のPC・スマートフォンのBluetooth設定でも確認できます）。</dd>
         <dt>Interval</dt>
         <dd>データ取得間隔（ミリ秒）。デフォルト100ms。</dd>
         <dt>Inputs</dt>
