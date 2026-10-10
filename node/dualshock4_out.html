@@ -7,10 +7,6 @@
             ds4mac: { value: "", validate: function(v) {
                 if (!v) return true;
                 return /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(v);
-            }},
-            mac: { value: "", validate: function(v) {
-                if (!v) return true;
-                return /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(v);
             }}
         },
         inputs: 1,
@@ -32,17 +28,8 @@
         <label for="node-input-ds4mac"><i class="fa fa-gamepad"></i> DS4 MAC</label>
         <input type="text" id="node-input-ds4mac" placeholder="XX:XX:XX:XX:XX:XX">
         <div style="margin-left: 105px; font-size: 0.85em; color: #888;">
-            接続を許可するDualShock4のBluetoothMACアドレス。<br>
+            ペアリング・接続するDualShock4本体のBluetoothMACアドレス。<br>
             dualshock4 inノードと同じ値を設定してください。
-        </div>
-    </div>
-    <div class="form-row">
-        <label for="node-input-mac"><i class="fa fa-bluetooth"></i> ESP32 MAC</label>
-        <input type="text" id="node-input-mac" placeholder="XX:XX:XX:XX:XX:XX">
-        <div style="margin-left: 105px; font-size: 0.85em; color: #888;">
-            ESP32のBluetoothMACアドレスをこの値に変更します。<br>
-            dualshock4 inノードと同じ値を設定してください。空欄でデフォルト。<br>
-            DS4側のペアリング先MACは <a href="https://github.com/user-none/sixaxispairer" target="_blank">sixaxispairer</a> または <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a> で確認/変更できます。
         </div>
     </div>
 </script>
@@ -63,17 +50,9 @@
     <h3>設定</h3>
     <dl>
         <dt>DS4 MAC</dt>
-        <dd>接続を許可するDualShock4のBluetoothMACアドレス。
+        <dd>ペアリング・接続するDualShock4本体のBluetoothMACアドレス。
             dualshock4 inノードと同じ値を設定してください。
-            空欄の場合は全てのDualShock4からの接続を受け付けます。</dd>
-        <dt>ESP32 MAC</dt>
-        <dd>ESP32のBluetoothMACアドレスをこの値に変更します。
-            dualshock4 inノードと同じ値を設定してください。
-            空欄の場合はESP32のデフォルトMACを使用します。
-            DualShock4が現在記憶しているペアリング先MACは、
-            <a href="https://github.com/user-none/sixaxispairer" target="_blank">sixaxispairer</a> または
-            <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a>
-            でDualShock4をUSB接続して確認/変更できます。</dd>
+            空欄の場合は、ペアリングモードで見つかった最初のDualShock4とペアリングします。</dd>
     </dl>
 
     <h3>使用例</h3>

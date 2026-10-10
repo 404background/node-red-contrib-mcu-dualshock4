@@ -5,13 +5,13 @@
  * the same physical Bluetooth Classic connection via this class.
  *
  * Listener pattern: each node registers a listener object with
- * { connect(), disconnect(), data(payload) } callbacks.
+ * { connect(), disconnect(), data(payload), state(name) } callbacks.
+ * state(name) receives "connected" | "pairing" | "waiting".
  *
- * pairingMac passed to start() must match the MAC address currently
- * stored inside the DualShock4. Read/write that value by connecting the
- * controller via USB and using:
- *   - sixaxispairer (CLI):       https://github.com/user-none/sixaxispairer
- *   - SixaxisPairTool (Windows): https://sixaxispairtool.en.lo4d.com/windows
+ * Pairing: put the DualShock4 into pairing mode (hold SHARE + PS until the
+ * light bar double-flashes). The ESP32 connects to the DS4 MAC passed to
+ * start(), or to the first controller found when it is empty. After that,
+ * pressing PS reconnects the controller.
  */
 
 import Timer from "timer";
@@ -22,12 +22,14 @@ class DS4Controller {
     #listeners;
     #timer;
     #connected;
+    #state;
     #interval;
 
     constructor() {
         this.#listeners = [];
         this.#timer = undefined;
         this.#connected = false;
+        this.#state = undefined;
         this.#interval = 100;
     }
 
@@ -38,10 +40,13 @@ class DS4Controller {
         return instance;
     }
 
-    start(pairingMac, ds4Mac, interval = 100) {
-        /* _nativeInit guards against double ps4Init() internally */
-        this._nativeInit(pairingMac || "", ds4Mac || "");
-        this._nativeSetCallbacks();
+    start(ds4Mac, interval = 100) {
+        /* _nativeInit starts Bluetooth only once */
+        const first = this.localAddress === undefined;
+        this._nativeInit(ds4Mac || "");
+        if (first) {
+            trace(`DS4: ESP32 Bluetooth address ${this.localAddress}\n`);
+        }
 
         if (this.#timer !== undefined) return;
 
@@ -51,10 +56,18 @@ class DS4Controller {
             const change = this._nativeCheckConnectionChanged();
             if (change === 1) {
                 this.#connected = true;
+                trace(`DS4: connected ${this._nativeGetPeerAddress()}\n`);
                 this._notify("connect");
             } else if (change === -1) {
                 this.#connected = false;
+                trace("DS4: disconnected\n");
                 this._notify("disconnect");
+            }
+
+            const state = this._nativeGetState();
+            if (state !== this.#state) {
+                this.#state = state;
+                this._notify("state", state);
             }
 
             if (!this.#connected) return;
@@ -73,12 +86,28 @@ class DS4Controller {
         }
     }
 
+    unpair() {
+        this._nativeUnpair();
+    }
+
     get connected() {
         return this.#connected;
     }
 
+    get state() {
+        return this.#state;
+    }
+
     get running() {
         return this.#timer !== undefined;
+    }
+
+    get localAddress() {
+        return this._nativeGetLocalAddress();
+    }
+
+    get peerAddress() {
+        return this._nativeGetPeerAddress();
     }
 
     /* --- Listener management --- */
@@ -89,6 +118,8 @@ class DS4Controller {
         /* Notify immediately if already connected */
         if (this.#connected && listener.connect) {
             listener.connect();
+        } else if (this.#state && listener.state) {
+            listener.state(this.#state);
         }
     }
 
@@ -131,9 +162,12 @@ class DS4Controller {
 
     /* --- Native methods (XS in C) --- */
 
-    _nativeInit(pairingMac, ds4Mac) @ "xs_ds4_init"
-    _nativeSetCallbacks() @ "xs_ds4_set_callbacks"
+    _nativeInit(ds4Mac) @ "xs_ds4_init"
     _nativeCheckConnectionChanged() @ "xs_ds4_check_connection_changed"
+    _nativeGetState() @ "xs_ds4_get_state"
+    _nativeGetLocalAddress() @ "xs_ds4_get_local_address"
+    _nativeGetPeerAddress() @ "xs_ds4_get_peer_address"
+    _nativeUnpair() @ "xs_ds4_unpair"
     _nativeRead() @ "xs_ds4_read"
     _nativeSetLed(r, g, b) @ "xs_ds4_set_led"
     _nativeSetRumble(small, large) @ "xs_ds4_set_rumble"

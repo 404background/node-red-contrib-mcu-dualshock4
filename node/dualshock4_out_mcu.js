@@ -4,9 +4,9 @@
  * Controls DualShock4 LED, rumble, and flash via shared DS4Controller instance.
  *
  * Output protocol (ESP32 -> DualShock4):
- *   HID Output Report (identifier 0x11) via L2CAP control channel
- *   LED color, rumble intensity, and flash rate are buffered in outputCmd
- *   and sent together via ps4SetOutput() -> ps4Cmd() -> ps4_l2cap_send_hid()
+ *   HID Output Report 0x11 on the interrupt channel (with CRC32).
+ *   LED color, rumble intensity, and flash rate are buffered natively
+ *   and sent together by sendToController().
  */
 
 import { Node } from "nodered";
@@ -27,17 +27,20 @@ class DualShock4OutNode extends Node {
             },
             disconnect: () => {
                 this.status({ fill: "red", shape: "ring", text: "disconnected" });
+            },
+            state: (state) => {
+                if (state === "pairing") {
+                    this.status({ fill: "yellow", shape: "dot", text: "pairing" });
+                } else if (state === "waiting") {
+                    this.status({ fill: "yellow", shape: "ring", text: "waiting (press PS)" });
+                }
             }
         };
-
-        if (!this.#controller.connected) {
-            this.status({ fill: "yellow", shape: "ring", text: "waiting" });
-        }
 
         this.#controller.addListener(this.#listener);
 
         try {
-            this.#controller.start(config.mac || "", config.ds4mac || "");
+            this.#controller.start(config.ds4mac || "");
         } catch (e) {
             this.status({ fill: "red", shape: "ring", text: "error" });
             this.error(e?.message ?? e);

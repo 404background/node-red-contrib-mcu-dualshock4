@@ -12,11 +12,7 @@
             },
             "modules": {
                 "*": [
-                    "./esp32/ds4_native",
-                    "./esp32/ps4/ps4",
-                    "./esp32/ps4/ps4_l2cap",
-                    "./esp32/ps4/ps4_parser",
-                    "./esp32/ps4/ps4_spp"
+                    "./esp32/ds4_native"
                 ]
             }
         },

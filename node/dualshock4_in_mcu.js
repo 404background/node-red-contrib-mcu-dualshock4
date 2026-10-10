@@ -5,7 +5,8 @@
  * Filters output based on selectedInputs configuration.
  *
  * Starts listening when the flow starts. msg.kill === true stops it,
- * any other message starts it again.
+ * msg.unpair === true forgets paired controllers, any other message
+ * starts it again.
  */
 
 import { Node } from "nodered";
@@ -14,7 +15,6 @@ import DS4Controller from "ds4_controller";
 class DualShock4InNode extends Node {
     #controller;
     #listener;
-    #mac;
     #ds4mac;
     #interval;
     #selectedInputs;
@@ -22,7 +22,6 @@ class DualShock4InNode extends Node {
     onStart(config) {
         super.onStart(config);
 
-        this.#mac = config.mac || "";
         this.#ds4mac = config.ds4mac || "";
         this.#interval = Number(config.interval) > 0 ? Number(config.interval) : 100;
         this.#selectedInputs = config.selectedInputs || {};
@@ -33,6 +32,8 @@ class DualShock4InNode extends Node {
     onMessage(msg, done) {
         if (msg.kill === true) {
             this.#stop();
+        } else if (msg.unpair === true) {
+            this.#controller?.unpair();
         } else if (!this.#listener) {
             this.#start();
         }
@@ -49,6 +50,13 @@ class DualShock4InNode extends Node {
             disconnect: () => {
                 this.status({ fill: "red", shape: "ring", text: "disconnected" });
             },
+            state: (state) => {
+                if (state === "pairing") {
+                    this.status({ fill: "yellow", shape: "dot", text: "pairing" });
+                } else if (state === "waiting") {
+                    this.status({ fill: "yellow", shape: "ring", text: "waiting (press PS)" });
+                }
+            },
             data: (data) => {
                 const filtered = this.#filterInputs(data);
                 if (Object.keys(filtered).length > 0) {
@@ -57,14 +65,10 @@ class DualShock4InNode extends Node {
             }
         };
 
-        if (!this.#controller.connected) {
-            this.status({ fill: "yellow", shape: "ring", text: "waiting" });
-        }
-
         this.#controller.addListener(this.#listener);
 
         try {
-            this.#controller.start(this.#mac, this.#ds4mac, this.#interval);
+            this.#controller.start(this.#ds4mac, this.#interval);
         } catch (e) {
             this.status({ fill: "red", shape: "ring", text: "error" });
             this.error(e?.message ?? e);

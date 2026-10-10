@@ -3,7 +3,6 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         const node = this;
 
-        node.mac = config.mac || "";
         node.ds4mac = config.ds4mac || "";
 
         node.on("input", function (msg) {
