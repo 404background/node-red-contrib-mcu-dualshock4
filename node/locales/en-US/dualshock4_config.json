@@ -6,7 +6,7 @@
             "interval": "Interval"
         },
         "placeholder": {
-            "ds4mac": "Empty: first DS4 in pairing mode"
+            "ds4mac": "XX:XX:XX:XX:XX:XX (required)"
         },
         "tip": "First time: hold <b>SHARE + PS</b> on the DualShock4 to pair. After that, press <b>PS</b> to connect."
     }

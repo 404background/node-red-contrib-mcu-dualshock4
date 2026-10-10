@@ -3,10 +3,13 @@
  *
  * Configuration node: owns the Bluetooth connection to one DualShock4
  * (DS4 MAC, polling interval). dualshock4 in / out nodes attach to it.
+ * DS4 MAC is required; without it Bluetooth is not started.
  */
 
 import { Node } from "nodered";
 import DS4Controller from "ds4_controller";
+
+const MAC_PATTERN = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
 
 class DualShock4ConfigNode extends Node {
     #controller;
@@ -16,9 +19,16 @@ class DualShock4ConfigNode extends Node {
         super.onStart(config);
 
         const interval = Number(config.interval) > 0 ? Number(config.interval) : 100;
+        const ds4mac = config.ds4mac || "";
+        if (!MAC_PATTERN.test(ds4mac)) {
+            this.#error = ds4mac ? "invalid DS4 MAC" : "DS4 MAC not set";
+            this.error(`${this.#error}: set the DualShock4 Bluetooth address in the dualshock4 config node`);
+            return;
+        }
+
         this.#controller = DS4Controller.getInstance();
         try {
-            this.#controller.start(config.ds4mac || "", interval);
+            this.#controller.start(ds4mac, interval);
             this.#controller.addListener({
                 error: (message) => this.warn(`DS4: ${message}`)
             });
@@ -35,7 +45,7 @@ class DualShock4ConfigNode extends Node {
      */
     attach(node, handlers = {}) {
         if (this.#error) {
-            node.status({ fill: "red", shape: "ring", text: "bluetooth error" });
+            node.status({ fill: "red", shape: "ring", text: this.#error });
             return;
         }
 

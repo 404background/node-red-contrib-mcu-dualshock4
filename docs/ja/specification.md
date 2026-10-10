@@ -34,7 +34,7 @@ Node-RED MCU Runtime
 1. Bluetooth Classic(Bluedroid)とHID Hostを初期化
 2. 未ペアリングの場合:
    - DS4 MAC指定あり → そのアドレスへ接続を試行（2秒間隔でリトライ）
-   - DS4 MAC空欄 → Inquiryで "Wireless Controller"（またはCoD: Peripheral/Gamepad）を探索して接続
+   - DS4 MAC空欄（Moddable SDK単体のテストプログラムのみ。Node-REDでは必須） → Inquiryで "Wireless Controller"（またはCoD: Peripheral/Gamepad）を探索して接続
    - Secure Simple Pairing（Just Works）でボンディング。リンクキーはNVSに保存
 3. ペアリング済みの場合: 起動時にボンディング済みデバイスをHID Hostに登録し、DualShock4からの接続（PSボタン）を受け付け
 4. 接続後、Feature Report 0x02を読み出してDualShock4をフルレポート(0x11)モードに切り替え

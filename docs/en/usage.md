@@ -82,7 +82,7 @@ Only one DualShock4 connection is supported. Use a single configuration node.
 ### dualshock4 config
 
 **Settings:**
-- **DS4 MAC** - Bluetooth MAC address of the DualShock4 to pair / connect (empty: pair with the first DualShock4 found)
+- **DS4 MAC** - Bluetooth MAC address of the DualShock4 to pair / connect (**required**; without it an error is reported and nothing connects)
 - **Interval** - Polling interval of the controller state (ms, default 100)
 
 ### dualshock4 in
@@ -159,7 +159,7 @@ If pairing or connecting fails, the reason is shown as a warning in the debug si
 2. Hold **SHARE + PS** on the DualShock4 until the light bar double-flashes (pairing mode)
 3. The ESP32 connects to the DualShock4 and pairs automatically (the node status becomes `connected`)
 
-If DS4 MAC in the dualshock4 config node is empty, the ESP32 pairs with the first DualShock4 found in pairing mode.  
+Set the MAC address of the DualShock4 to pair in DS4 MAC of the dualshock4 config node beforehand.  
 To use a specific DualShock4 only, or when several controllers are nearby, set DS4 MAC.
 
 ### Checking the DualShock4 MAC Address
@@ -168,8 +168,8 @@ To use a specific DualShock4 only, or when several controllers are nearby, set D
   Connect the DualShock4 to a PC with a USB cable to see its own MAC address (Device Address) and the currently stored pairing target (Current Master)
 - **Bluetooth settings on a PC / smartphone**  
   Shows the address of the DualShock4 ("Wireless Controller") in pairing mode
-- **xsbug log**  
-  After connecting once with DS4 MAC empty, the address of the connected DualShock4 is printed, e.g. `DS4: connected aa:bb:cc:dd:ee:ff`
+- **Moddable SDK test program** ([below](#testing-with-the-moddable-sdk-only))  
+  Run without `ds4mac`: it connects to the first DualShock4 found and prints its address, e.g. `DS4: connected aa:bb:cc:dd:ee:ff`
 
 > [sixaxispairer](https://github.com/user-none/sixaxispairer) (CLI) is a tool for PS3 controllers (SixAxis / Move) and does not support the DualShock4.
 
@@ -181,8 +181,7 @@ Even after the ESP32 restarts, **just press the PS button** to connect.
 ### Re-pairing
 
 - With DS4 MAC set: if that DualShock4 is not paired yet, the ESP32 waits for pairing automatically. To switch to another DualShock4, change DS4 MAC
-- With DS4 MAC empty: once paired, no new controller is searched for. Send `msg.unpair = true` to the dualshock4 out node to delete the pairing information and wait for pairing again
-- If the DualShock4 was paired with a PS4 console or PC in the meantime, also send `msg.unpair = true` and pair again
+- If the DualShock4 was paired with a PS4 console or PC in the meantime, send `msg.unpair = true` to the dualshock4 out node to delete the pairing information and pair again
 
 ## Sample Flow
 

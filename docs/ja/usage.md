@@ -82,7 +82,7 @@ rm -rf ~/.node-red/mcu-plugin-cache/<名前>
 ### dualshock4 config
 
 **設定:**
-- **DS4 MAC** - ペアリング・接続するDualShock4本体のBluetoothMACアドレス（空欄で最初に見つかったDS4とペアリング）
+- **DS4 MAC** - ペアリング・接続するDualShock4本体のBluetoothMACアドレス（**必須**。未設定の場合はエラーになり、接続しません）
 - **取得間隔** - コントローラの状態を読み取る間隔（ms、デフォルト100）
 
 ### dualshock4 in
@@ -159,7 +159,7 @@ in / out ノードに接続状態が表示されます。
 2. DualShock4の **SHARE + PS** を、ライトバーが素早く2回ずつ点滅するまで長押しします（ペアリングモード）
 3. ESP32が自動でDualShock4に接続し、ペアリングします（ノードの状態が `connected` になります）
 
-dualshock4 config ノードのDS4 MACを空欄にした場合は、ペアリングモードで最初に見つかったDualShock4とペアリングします。  
+ペアリングするDualShock4のMACアドレスを、dualshock4 config ノードのDS4 MACに設定しておく必要があります。  
 特定のDualShock4だけを使いたい場合や、近くに複数のコントローラがある場合は、DS4 MACを指定してください。
 
 ### DualShock4のMACアドレスの確認方法
@@ -168,8 +168,8 @@ dualshock4 config ノードのDS4 MACを空欄にした場合は、ペアリン�
   DualShock4をUSBケーブルでPCに接続すると、本体のMACアドレス（Device Address）と、現在記憶しているペアリング先（Current Master）を確認できます
 - **PC・スマートフォンのBluetooth設定画面**  
   ペアリングモード中のDualShock4（"Wireless Controller"）のアドレスを確認できます
-- **xsbugのログ**  
-  DS4 MACを空欄にして一度接続すると、`DS4: connected aa:bb:cc:dd:ee:ff` のように接続したDualShock4のアドレスが出力されます
+- **Moddable SDK単体の動作確認プログラム**（[後述](#moddable-sdkでの単体動作確認)）  
+  `ds4mac` を指定せずに実行すると最初に見つかったDualShock4と接続し、`DS4: connected aa:bb:cc:dd:ee:ff` のようにアドレスが出力されます
 
 > [sixaxispairer](https://github.com/user-none/sixaxispairer)（CLI）はPS3用コントローラ（SixAxis / Move）向けのツールで、DualShock4には対応していません。
 
@@ -181,8 +181,7 @@ ESP32を再起動しても、**PSボタンを押すだけ**で接続されます
 ### 再ペアリング
 
 - DS4 MACを指定している場合: 指定したDualShock4が未ペアリングなら、自動でペアリングを待ちます。別のDualShock4に変えるときはDS4 MACを変更してください
-- DS4 MACが空欄の場合: 一度ペアリングすると新しいコントローラは探索しません。dualshock4 outノードに `msg.unpair = true` を送るとペアリング情報を削除し、再びペアリングを待ちます
-- DualShock4をPS4本体やPCとペアリングし直した場合も、`msg.unpair = true` の後に再度ペアリングしてください
+- DualShock4をPS4本体やPCとペアリングし直した場合は、dualshock4 outノードに `msg.unpair = true` を送ってペアリング情報を削除し、再度ペアリングしてください
 
 ## サンプルフロー
 

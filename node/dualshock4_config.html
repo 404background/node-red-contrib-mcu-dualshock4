@@ -4,8 +4,8 @@
         paletteLabel: "dualshock4 config",
         defaults: {
             name: { value: "" },
-            ds4mac: { value: "", validate: function (v) {
-                return !v || /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(v);
+            ds4mac: { value: "", required: true, validate: function (v) {
+                return /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(v || "");
             }},
             interval: { value: 100, required: true, validate: RED.validators.number() }
         },

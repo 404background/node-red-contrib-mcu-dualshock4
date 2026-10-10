@@ -3,7 +3,7 @@
         "id": "d54c0f1000000001",
         "type": "comment",
         "name": "DualShock4 sample (ESP32 / Node-RED MCU)",
-        "info": "First time: hold SHARE + PS on the DualShock4 until the light bar double-flashes.\nThe ESP32 pairs automatically. After that, press PS to connect.\n\nSet DS4 MAC in the \"DualShock4\" configuration node to use a specific controller.",
+        "info": "Set the Bluetooth address of your DualShock4 in DS4 MAC of the \"DualShock4\" configuration node (required).\n\nFirst time: hold SHARE + PS on the DualShock4 until the light bar double-flashes.\nThe ESP32 pairs automatically. After that, press PS to connect.",
         "_mcu": {
             "mcu": true
         },
