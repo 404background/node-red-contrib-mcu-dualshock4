@@ -543,7 +543,7 @@ void xs_ds4_init(xsMachine *the) {
     const char *failed = startBluetooth(&err);
     if (failed && (ESP_ERR_INVALID_STATE == err) && !strcmp(failed, "controller init"))
         xsUnknownError("bluetooth controller init failed (0x103): Moddable main.c released the Bluetooth Classic memory. "
-                       "Apply the Moddable SDK patch in docs/en/usage.md");
+                       "Apply the Moddable SDK patch in README.md");
     if (failed)
         xsUnknownError("bluetooth %s failed: %s (0x%x)", failed, esp_err_to_name(err), (unsigned)err);
 }

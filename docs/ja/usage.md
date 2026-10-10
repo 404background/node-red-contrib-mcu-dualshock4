@@ -26,7 +26,7 @@ Bluetooth Classic(Bluedroid + HID Host)の設定は `native/esp32/sdkconfig/sdkc
 
 ### Moddable SDKの修正（必須）
 
-Moddable SDKは、Bluetoothが有効なとき起動時にBluetooth Classic用のメモリを解放します（`build/devices/esp32/lib/main/main.c`）。
+Moddable SDKはBLEのみをサポートしているため、Bluetoothが有効なとき起動時にBluetooth Classic用のメモリを解放します（`build/devices/esp32/lib/main/main.c`。2018年のコミット `7ed07750e`「free bluetooth classic reserve memory at startup - we don't support classic」で追加され、5.12.0・7.2.1・最新の9.5.0でも同じです）。
 DualShock4はBluetooth Classicを使うため、そのままでは起動時に `bluetooth controller init failed (0x103)` で停止し、再起動を繰り返します。
 
 `main.c` の次の行を変更してください（BLEだけを使うアプリの動作は変わりません）。

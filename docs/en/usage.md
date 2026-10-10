@@ -26,7 +26,7 @@ The Bluetooth Classic (Bluedroid + HID Host) settings are included in `native/es
 
 ### Moddable SDK Patch (Required)
 
-When Bluetooth is enabled, the Moddable SDK releases the Bluetooth Classic memory at startup (`build/devices/esp32/lib/main/main.c`).
+The Moddable SDK supports only BLE, so when Bluetooth is enabled it releases the Bluetooth Classic memory at startup (`build/devices/esp32/lib/main/main.c`; added in 2018 by commit `7ed07750e` "free bluetooth classic reserve memory at startup - we don't support classic", and unchanged in 5.12.0, 7.2.1 and the latest 9.5.0).
 The DualShock4 uses Bluetooth Classic, so without a patch the ESP32 stops with `bluetooth controller init failed (0x103)` and keeps restarting.
 
 Change the following lines in `main.c` (apps that only use BLE behave the same as before).
