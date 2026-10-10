@@ -13,7 +13,7 @@ Reads buttons, sticks and triggers, and controls the LED and rumble over Bluetoo
 
 Moddable supports only BLE, so its ESP32 startup code frees the memory reserved for Bluetooth Classic whenever Bluetooth is enabled.
 The DualShock4 needs Bluetooth Classic, so without this patch the ESP32 stops with
-`bluetooth controller init failed (0x103): Moddable main.c released the Bluetooth Classic memory.`
+`bluetooth controller init failed (0x103): Moddable main.c needs a patch (see README)`
 
 Change two lines in `$MODDABLE/build/devices/esp32/lib/main/main.c` (BLE-only apps behave the same as before):
 

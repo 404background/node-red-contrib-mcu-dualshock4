@@ -541,9 +541,9 @@ void xs_ds4_init(xsMachine *the) {
 
     esp_err_t err = ESP_OK;
     const char *failed = startBluetooth(&err);
+    /* XS limits error messages to 127 characters; ds4_controller.js traces the fix steps */
     if (failed && (ESP_ERR_INVALID_STATE == err) && !strcmp(failed, "controller init"))
-        xsUnknownError("bluetooth controller init failed (0x103): Moddable main.c released the Bluetooth Classic memory. "
-                       "Apply the Moddable SDK patch in README.md");
+        xsUnknownError("bluetooth controller init failed (0x103): Moddable main.c needs a patch (see README)");
     if (failed)
         xsUnknownError("bluetooth %s failed: %s (0x%x)", failed, esp_err_to_name(err), (unsigned)err);
 }

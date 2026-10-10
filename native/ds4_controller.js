@@ -44,7 +44,18 @@ class DS4Controller {
     start(ds4Mac, interval) {
         /* _nativeInit starts Bluetooth only once */
         const first = this.localAddress === undefined;
-        this._nativeInit(ds4Mac || "");
+        try {
+            this._nativeInit(ds4Mac || "");
+        } catch (e) {
+            if (String(e?.message).includes("(0x103)")) {
+                trace("DS4: Moddable frees the Bluetooth Classic memory at startup. Patch it and rebuild:\n" +
+                      "  file:   $MODDABLE/build/devices/esp32/lib/main/main.c\n" +
+                      "  before: #if CONFIG_BT_ENABLED\n" +
+                      "  after:  #if CONFIG_BT_ENABLED && !CONFIG_BT_CLASSIC_ENABLED\n" +
+                      "  (see README.md \"Moddable SDK Patch\")\n");
+            }
+            throw e;
+        }
         if (first) {
             trace(`DS4: ESP32 Bluetooth address ${this.localAddress}\n`);
         }
