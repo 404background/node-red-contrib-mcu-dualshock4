@@ -71,7 +71,8 @@ node-red-contrib-mcu-dualshock4/
 │   ├── dualshock4_in_mcu.js      # 入力ノード MCUランタイム
 │   ├── dualshock4_out.html       # 出力ノード エディタUI
 │   ├── dualshock4_out.js         # 出力ノード PC側ロジック
-│   └── dualshock4_out_mcu.js     # 出力ノード MCUランタイム
+│   ├── dualshock4_out_mcu.js     # 出力ノード MCUランタイム
+│   └── locales/                  # エディタ表示・ヘルプ (en-US / ja)
 ├── examples/moddable/            # Moddable SDK単体での動作確認用
 ├── docs/                         # ドキュメント (en / ja)
 └── native/

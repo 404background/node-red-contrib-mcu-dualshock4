@@ -1,0 +1,17 @@
+<script type="text/html" data-help-name="dualshock4_out">
+    <p>Controls the LED and rumble of the DualShock4 connected by the <code>dualshock4 in</code> node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt class="optional">payload.led <span class="property-type">object</span></dt>
+        <dd>Light bar color <code>{ r, g, b }</code> (0 to 255)</dd>
+        <dt class="optional">payload.rumble <span class="property-type">object</span></dt>
+        <dd>Rumble <code>{ small, large }</code> (0 to 255, 0 stops)</dd>
+        <dt class="optional">payload.flash <span class="property-type">object</span></dt>
+        <dd>Light bar flash <code>{ on, off }</code> in milliseconds (up to 2550, 0 stops)</dd>
+    </dl>
+    <p>Unspecified items keep their previous values.</p>
+
+    <h3>Example</h3>
+    <pre>msg.payload = { led: { r: 255, g: 0, b: 0 }, rumble: { small: 0, large: 128 } };</pre>
+</script>

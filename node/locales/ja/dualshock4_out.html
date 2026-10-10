@@ -1,0 +1,17 @@
+<script type="text/html" data-help-name="dualshock4_out">
+    <p><code>dualshock4 in</code> ノードで接続したDualShock4のLED・振動を制御します。</p>
+
+    <h3>入力</h3>
+    <dl class="message-properties">
+        <dt class="optional">payload.led <span class="property-type">object</span></dt>
+        <dd>ライトバーの色 <code>{ r, g, b }</code>（0〜255）</dd>
+        <dt class="optional">payload.rumble <span class="property-type">object</span></dt>
+        <dd>振動 <code>{ small, large }</code>（0〜255、0で停止）</dd>
+        <dt class="optional">payload.flash <span class="property-type">object</span></dt>
+        <dd>ライトバーの点滅 <code>{ on, off }</code>（ミリ秒、最大2550、0で停止）</dd>
+    </dl>
+    <p>指定しなかった項目は前回の値を保持します。</p>
+
+    <h3>例</h3>
+    <pre>msg.payload = { led: { r: 255, g: 0, b: 0 }, rumble: { small: 0, large: 128 } };</pre>
+</script>

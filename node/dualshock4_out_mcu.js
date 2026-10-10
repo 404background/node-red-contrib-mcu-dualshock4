@@ -40,7 +40,8 @@ class DualShock4OutNode extends Node {
         this.#controller.addListener(this.#listener);
 
         try {
-            this.#controller.start(config.ds4mac || "");
+            /* The DS4 MAC is configured on the dualshock4 in node */
+            this.#controller.start("");
         } catch (e) {
             this.status({ fill: "red", shape: "ring", text: "error" });
             this.error(e?.message ?? e);

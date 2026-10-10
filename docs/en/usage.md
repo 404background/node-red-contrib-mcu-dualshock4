@@ -28,7 +28,7 @@ The Bluetooth Classic (Bluedroid + HID Host) settings are included in `native/es
 
 ### dualshock4 in
 
-Reads input from the DualShock4 controller.
+Reads input from the DualShock4 controller. A message is sent only when a selected input changes.
 
 **Output data:**
 
@@ -47,13 +47,11 @@ Reads input from the DualShock4 controller.
 **Settings:**
 - **DS4 MAC** - Bluetooth MAC address of the DualShock4 to pair / connect (empty: pair with the first DualShock4 found)
 - **Interval** - Polling interval (ms, default 100)
-- **Inputs** - Buttons / sticks to include in the output
+- **Inputs** - Buttons / sticks to include in the output (all selected by default). `status` is always included
 
 **Input messages:**
 - Starts listening automatically when the flow starts
-- `msg.kill = true` - Stop output
 - `msg.unpair = true` - Delete all pairing information stored on the ESP32 and wait for pairing again
-- Any other message - Resume if stopped
 
 ### dualshock4 out
 
@@ -78,8 +76,8 @@ msg.payload = {
 };
 ```
 
-**Settings:**
-- **DS4 MAC** - Set the same value as the dualshock4 in node
+Unspecified items keep their previous values. Rumble and flash stop with `0`.  
+The controller is the one selected by **DS4 MAC** on the dualshock4 in node (the out node has no settings).
 
 ### Node Status
 

@@ -18,7 +18,7 @@ npm install @background404/node-red-contrib-mcu-dualshock4
 
 ## Nodes
 
-- **dualshock4 in** - Outputs `msg.payload` with `buttons`, `analog` and `status`
+- **dualshock4 in** - Outputs `msg.payload` with `buttons`, `analog` and `status` when the input changes
 - **dualshock4 out** - Sets the LED / rumble / flash from `msg.payload`, e.g. `{ led: { r: 255, g: 0, b: 0 } }`
 
 ## Pairing

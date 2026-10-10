@@ -1,0 +1,16 @@
+{
+    "dualshock4_in": {
+        "label": {
+            "name": "Name",
+            "ds4mac": "DS4 MAC",
+            "interval": "Interval",
+            "inputs": "Inputs",
+            "selectAll": "Select all",
+            "buttons": "Buttons",
+            "analog": "Analog"
+        },
+        "placeholder": {
+            "ds4mac": "Empty: first DS4 in pairing mode"
+        }
+    }
+}

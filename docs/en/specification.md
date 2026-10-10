@@ -71,7 +71,8 @@ node-red-contrib-mcu-dualshock4/
 │   ├── dualshock4_in_mcu.js      # Input node MCU runtime
 │   ├── dualshock4_out.html       # Output node editor UI
 │   ├── dualshock4_out.js         # Output node editor-side logic
-│   └── dualshock4_out_mcu.js     # Output node MCU runtime
+│   ├── dualshock4_out_mcu.js     # Output node MCU runtime
+│   └── locales/                  # Editor labels and help (en-US / ja)
 ├── examples/moddable/            # Test with the Moddable SDK only
 ├── docs/                         # Documentation (en / ja)
 └── native/

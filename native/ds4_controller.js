@@ -40,7 +40,8 @@ class DS4Controller {
         return instance;
     }
 
-    start(ds4Mac, interval = 100) {
+    /* interval: polling period in ms, omitted to keep the current one */
+    start(ds4Mac, interval) {
         /* _nativeInit starts Bluetooth only once */
         const first = this.localAddress === undefined;
         this._nativeInit(ds4Mac || "");
@@ -48,9 +49,12 @@ class DS4Controller {
             trace(`DS4: ESP32 Bluetooth address ${this.localAddress}\n`);
         }
 
-        if (this.#timer !== undefined) return;
+        if ((interval > 0) && (interval !== this.#interval)) {
+            this.#interval = interval;
+            this.stop();
+        }
 
-        this.#interval = interval;
+        if (this.#timer !== undefined) return;
 
         this.#timer = Timer.repeat(() => {
             const change = this._nativeCheckConnectionChanged();
