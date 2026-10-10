@@ -102,13 +102,3 @@ node-red-contrib-mcu-dualshock4/
 
 Moddable SDKのBLEモジュールはBluetooth Low Energy(BLE)のみ対応しています。  
 DualShock4はBluetooth Classic(BR/EDR)のHIDプロトコルを使用するため、ESP-IDFのClassic HID HostをXS in Cでラップし、JavaScriptから呼び出せるようにしています。
-
-## 依存ソフトウェア
-
-このリポジトリにはサードパーティのソースコードは含まれていません。ビルド・実行には以下が必要です（別途インストール）。
-
-| ソフトウェア | 用途 | ライセンス |
-|-------------|------|-----------|
-| [Moddable SDK](https://github.com/Moddable-OpenSource/moddable) | ESP32上のJavaScriptランタイム（XSエンジン） | LGPL-3.0 / GPL-3.0 |
-| [ESP-IDF](https://github.com/espressif/esp-idf) | Bluedroid Classic HID Host / GAP API（Moddable SDKのビルドに含まれる） | Apache-2.0 |
-| [Node-RED MCU Edition](https://github.com/phoddie/node-red-mcu) | Node-REDフローをマイクロコントローラ上で実行 | LGPL-3.0 |
