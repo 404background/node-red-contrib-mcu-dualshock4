@@ -1,0 +1,222 @@
+[
+    {
+        "id": "d54c0f1000000001",
+        "type": "comment",
+        "name": "DualShock4 sample (ESP32 / Node-RED MCU)",
+        "info": "First time: hold SHARE + PS on the DualShock4 until the light bar double-flashes.\nThe ESP32 pairs automatically. After that, press PS to connect.\n\nSet DS4 MAC in the \"DualShock4\" configuration node to use a specific controller.",
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 200,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "d54c0f1a00000010",
+        "type": "dualshock4_in",
+        "name": "all inputs",
+        "controller": "d54c0f1c00000001",
+        "selectedInputs": {},
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 130,
+        "y": 100,
+        "wires": [
+            [
+                "d54c0f1d00000011"
+            ]
+        ]
+    },
+    {
+        "id": "d54c0f1d00000011",
+        "type": "debug",
+        "name": "input",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 310,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "d54c0f1a00000020",
+        "type": "dualshock4_in",
+        "name": "buttons + triggers",
+        "controller": "d54c0f1c00000001",
+        "selectedInputs": {
+            "cross": true,
+            "circle": true,
+            "square": true,
+            "triangle": true,
+            "l2_value": true,
+            "r2_value": true
+        },
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 150,
+        "y": 180,
+        "wires": [
+            [
+                "d54c0f1f00000021"
+            ]
+        ]
+    },
+    {
+        "id": "d54c0f1f00000021",
+        "type": "function",
+        "name": "LED / rumble",
+        "func": "const b = msg.payload.buttons;\nconst a = msg.payload.analog;\n\nlet led = { r: 0, g: 0, b: 64 };\nif (b.cross) led = { r: 0, g: 0, b: 255 };\nelse if (b.circle) led = { r: 255, g: 0, b: 0 };\nelse if (b.triangle) led = { r: 0, g: 255, b: 0 };\nelse if (b.square) led = { r: 255, g: 0, b: 255 };\n\nmsg.payload = {\n    led,\n    rumble: { small: a.l2_value, large: a.r2_value }\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 350,
+        "y": 180,
+        "wires": [
+            [
+                "d54c0f1b00000030"
+            ]
+        ]
+    },
+    {
+        "id": "d54c0f1e00000031",
+        "type": "inject",
+        "name": "LED red",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"led\":{\"r\":255,\"g\":0,\"b\":0}}",
+        "payloadType": "json",
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 350,
+        "y": 240,
+        "wires": [
+            [
+                "d54c0f1b00000030"
+            ]
+        ]
+    },
+    {
+        "id": "d54c0f1e00000032",
+        "type": "inject",
+        "name": "flash 500ms",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"flash\":{\"on\":500,\"off\":500}}",
+        "payloadType": "json",
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 360,
+        "y": 280,
+        "wires": [
+            [
+                "d54c0f1b00000030"
+            ]
+        ]
+    },
+    {
+        "id": "d54c0f1e00000033",
+        "type": "inject",
+        "name": "stop",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"rumble\":{\"small\":0,\"large\":0},\"flash\":{\"on\":0,\"off\":0}}",
+        "payloadType": "json",
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 350,
+        "y": 320,
+        "wires": [
+            [
+                "d54c0f1b00000030"
+            ]
+        ]
+    },
+    {
+        "id": "d54c0f1e00000034",
+        "type": "inject",
+        "name": "unpair",
+        "props": [
+            {
+                "p": "unpair",
+                "v": "true",
+                "vt": "bool"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 350,
+        "y": 360,
+        "wires": [
+            [
+                "d54c0f1b00000030"
+            ]
+        ]
+    },
+    {
+        "id": "d54c0f1b00000030",
+        "type": "dualshock4_out",
+        "name": "",
+        "controller": "d54c0f1c00000001",
+        "_mcu": {
+            "mcu": true
+        },
+        "x": 580,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "d54c0f1c00000001",
+        "type": "dualshock4_config",
+        "name": "DualShock4",
+        "ds4mac": "",
+        "interval": 100
+    }
+]

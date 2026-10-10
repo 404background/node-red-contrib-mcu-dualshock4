@@ -136,13 +136,25 @@ Even after the ESP32 restarts, **just press the PS button** to connect.
 - With DS4 MAC empty: once paired, no new controller is searched for. Send `msg.unpair = true` to the dualshock4 out node to delete the pairing information and wait for pairing again
 - If the DualShock4 was paired with a PS4 console or PC in the meantime, also send `msg.unpair = true` and pair again
 
+## Sample Flow
+
+Import it from the Node-RED menu "Import → Examples → @background404/node-red-contrib-mcu-dualshock4 → dualshock4" (`examples/dualshock4.json`).
+
+| Contents | Nodes |
+|------|--------|
+| Show all input in the debug sidebar | dualshock4 in → debug |
+| LED color by face button, rumble by L2/R2 trigger | dualshock4 in → function → dualshock4 out |
+| LED red, flash, stop, unpair | inject → dualshock4 out |
+
+After importing, build it for the ESP32 as an MCU flow.
+
 ## Testing with the Moddable SDK Only
 
 A sample project is included to test that the C extension (Bluetooth implementation) works with the Moddable SDK alone, without Node-RED.
 
 1. **Build and flash**:
    ```sh
-   cd examples/moddable
+   cd test/moddable
 
    # Pair with the first DS4 found
    mcconfig -d -m -p esp32

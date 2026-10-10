@@ -136,13 +136,25 @@ ESP32を再起動しても、**PSボタンを押すだけ**で接続されます
 - DS4 MACが空欄の場合: 一度ペアリングすると新しいコントローラは探索しません。dualshock4 outノードに `msg.unpair = true` を送るとペアリング情報を削除し、再びペアリングを待ちます
 - DualShock4をPS4本体やPCとペアリングし直した場合も、`msg.unpair = true` の後に再度ペアリングしてください
 
+## サンプルフロー
+
+Node-REDのメニュー「読み込み → サンプル → @background404/node-red-contrib-mcu-dualshock4 → dualshock4」から読み込めます（`examples/dualshock4.json`）。
+
+| 内容 | ノード |
+|------|--------|
+| 全入力をデバッグ表示 | dualshock4 in → debug |
+| 面ボタンでLEDの色、L2/R2トリガーで振動を変える | dualshock4 in → function → dualshock4 out |
+| LED赤・点滅・停止・ペアリング解除 | inject → dualshock4 out |
+
+読み込み後、MCU用のフローとしてESP32向けにビルドしてください。
+
 ## Moddable SDKでの単体動作確認
 
 Node-REDを経由せず、Moddable SDK単体でC拡張（Bluetooth実装）が正しく動作するかテストするためのサンプルプロジェクトが同梱されています。
 
 1. **ビルドと書き込み**:
    ```sh
-   cd examples/moddable
+   cd test/moddable
 
    # 最初に見つかったDS4とペアリングする場合
    mcconfig -d -m -p esp32

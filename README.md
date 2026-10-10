@@ -30,6 +30,10 @@ npm install @background404/node-red-contrib-mcu-dualshock4
 
 Set **DS4 MAC** in the dualshock4 config node to pair with a specific controller only.
 
+## Example
+
+Import "dualshock4" from Import → Examples in the Node-RED menu.
+
 ## Documentation
 
 - Usage: [English](docs/en/usage.md) | [日本語](docs/ja/usage.md)
