@@ -31,7 +31,6 @@ The Bluetooth Classic (Bluedroid + HID Host) settings are included in `native/es
 | Moddable SDK | 5.12.0 |
 | ESP-IDF | v5.5.1 |
 | node-red-mcu | e91b670 |
-| node-red-mcu-plugin | 1.5.4 |
 
 ### Build Troubleshooting
 

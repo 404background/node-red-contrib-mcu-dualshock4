@@ -31,7 +31,6 @@ Bluetooth Classic(Bluedroid + HID Host)の設定は `native/esp32/sdkconfig/sdkc
 | Moddable SDK | 5.12.0 |
 | ESP-IDF | v5.5.1 |
 | node-red-mcu | e91b670 |
-| node-red-mcu-plugin | 1.5.4 |
 
 ### ビルド時のトラブルシューティング
 
