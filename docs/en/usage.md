@@ -24,6 +24,32 @@ The Bluetooth Classic (Bluedroid + HID Host) settings are included in `native/es
 > When using those boards, append the contents of the target's `sdkconfig.defaults` to `native/esp32/sdkconfig/sdkconfig.defaults`.
 > No extra work is needed for the plain `esp32` target (`-p esp32`).
 
+### Tested Versions
+
+| Software | Version |
+|----------|---------|
+| Moddable SDK | 5.12.0 |
+| ESP-IDF | v5.5.1 |
+| node-red-mcu | e91b670 |
+| node-red-mcu-plugin | 1.5.4 |
+
+### Build Troubleshooting
+
+This node changes the sdkconfig to enable Bluetooth, so the first build runs `Reconfiguring ESP-IDF...` (CMake reconfiguration).
+If it stops with an error like the following, a build folder from before updating ESP-IDF or Moddable is likely left over.
+
+```
+The C compiler ... is not able to compile a simple test program.
+ninja: error: loading 'build.ninja': No such file or directory
+```
+
+Delete the build folder shown in the error and build again (for Node-RED MCU, also delete the plugin cache).
+
+```sh
+rm -rf $MODDABLE/build/tmp/esp32/debug/<name>
+rm -rf ~/.node-red/mcu-plugin-cache/<name>
+```
+
 ## Nodes
 
 | Node | Role |
