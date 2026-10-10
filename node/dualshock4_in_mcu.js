@@ -2,10 +2,14 @@
  * dualshock4_in - MCU runtime (ESP32)
  *
  * Receives DualShock4 input through the dualshock4_config node.
- * Sends a message only when the selected inputs change.
+ * Sends a message only when the selected inputs change
+ * (sticks / triggers by ANALOG_THRESHOLD or more).
  */
 
 import { Node } from "nodered";
+
+/* Sticks jitter by about ±1 at rest; smaller changes are not sent */
+const ANALOG_THRESHOLD = 2;
 
 class DualShock4InNode extends Node {
     #selectedInputs;
@@ -28,13 +32,25 @@ class DualShock4InNode extends Node {
             },
             data: (data) => {
                 const payload = this.#filterInputs(data);
-                const json = JSON.stringify(payload);
-                if (json !== this.#last) {
-                    this.#last = json;
+                if (this.#changed(this.#last, payload)) {
+                    this.#last = payload;
                     this.send({ payload });
                 }
             }
         });
+    }
+
+    /* Buttons and status must match exactly; analog values ignore small jitter */
+    #changed(prev, cur) {
+        if (!prev) return true;
+        for (const group of ["buttons", "status"]) {
+            if (JSON.stringify(prev[group]) !== JSON.stringify(cur[group])) return true;
+        }
+        const a = prev.analog ?? {}, b = cur.analog ?? {};
+        for (const key in b) {
+            if (!(key in a) || Math.abs(b[key] - a[key]) >= ANALOG_THRESHOLD) return true;
+        }
+        return false;
     }
 
     /* No selection saved (new node): everything. Otherwise only checked items. */

@@ -19,6 +19,9 @@ class DualShock4ConfigNode extends Node {
         this.#controller = DS4Controller.getInstance();
         try {
             this.#controller.start(config.ds4mac || "", interval);
+            this.#controller.addListener({
+                error: (message) => this.warn(`DS4: ${message}`)
+            });
         } catch (e) {
             this.#error = e?.message ?? String(e);
             this.error(this.#error);
@@ -46,7 +49,9 @@ class DualShock4ConfigNode extends Node {
                 handlers.disconnect?.();
             },
             state: (state) => {
-                if (state === "pairing") {
+                if (state === "starting") {
+                    node.status({ fill: "grey", shape: "ring", text: "starting" });
+                } else if (state === "pairing") {
                     node.status({ fill: "yellow", shape: "dot", text: "pairing" });
                 } else if (state === "waiting") {
                     node.status({ fill: "yellow", shape: "ring", text: "waiting (press PS)" });

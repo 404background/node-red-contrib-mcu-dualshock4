@@ -109,6 +109,10 @@ static volatile int64_t gNextAttempt;
 static ds4_state_t gState;
 static ds4_output_t gOutput = { 0, 0, 0, 0, 64, 0, 0 };
 
+/* Last error, readable from JS (ESP-IDF logs are not visible under Moddable) */
+static char gLastError[64];
+static volatile uint8_t gLastErrorChanged;
+
 /* Minimal descriptor, only used to register bonded controllers at start-up */
 static const uint8_t gDescriptor[] = {
     0x05, 0x01, 0x09, 0x05, 0xA1, 0x01, 0x85, 0x11,
@@ -123,6 +127,12 @@ static const uint8_t gDescriptor[] = {
 
 static int64_t nowMs(void) {
     return esp_timer_get_time() / 1000;
+}
+
+static void setError(const char *what, int code) {
+    snprintf(gLastError, sizeof(gLastError), "%s (0x%x)", what, code);
+    gLastErrorChanged = 1;
+    ESP_LOGW(DS4_TAG, "%s", gLastError);
 }
 
 static uint8_t clampByte(xsIntegerValue value) {
@@ -314,12 +324,14 @@ static void service(void) {
     if (!needsPairing())
         return;     /* bonded: wait for the controller to connect (PS button) */
 
+    esp_err_t err;
     if (gHasTarget) {
         char str[18];
         formatMac(gTarget, str);
         ESP_LOGI(DS4_TAG, "pairing: connecting to %s", str);
         gPairState = kPairConnecting;
-        if (esp_bt_hid_host_connect(gTarget) != ESP_OK) {
+        if ((err = esp_bt_hid_host_connect(gTarget)) != ESP_OK) {
+            setError("hid connect failed", err);
             gPairState = kPairIdle;
             gNextAttempt = nowMs() + DS4_RETRY_MS;
         }
@@ -328,7 +340,8 @@ static void service(void) {
         ESP_LOGI(DS4_TAG, "pairing: searching for a DualShock4 in pairing mode");
         gFound = 0;
         gPairState = kPairDiscovering;
-        if (esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, DS4_INQUIRY_LEN, 0) != ESP_OK) {
+        if ((err = esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, DS4_INQUIRY_LEN, 0)) != ESP_OK) {
+            setError("discovery failed", err);
             gPairState = kPairIdle;
             gNextAttempt = nowMs() + DS4_RETRY_MS;
         }
@@ -368,7 +381,7 @@ static void gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *para
         if (param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS)
             ESP_LOGI(DS4_TAG, "paired with %s", param->auth_cmpl.device_name);
         else
-            ESP_LOGW(DS4_TAG, "pairing failed: %d", param->auth_cmpl.stat);
+            setError("pairing failed", param->auth_cmpl.stat);
         break;
 
     case ESP_BT_GAP_PIN_REQ_EVT: {
@@ -417,13 +430,13 @@ static void hidhCallback(esp_hidh_cb_event_t event, esp_hidh_cb_param_t *param) 
             gHidReady = 1;
         }
         else
-            ESP_LOGE(DS4_TAG, "HID host init failed: %d", param->init.status);
+            setError("hid host init failed", param->init.status);
         break;
 
     case ESP_HIDH_OPEN_EVT:
         if ((param->open.status == ESP_HIDH_OK) && (param->open.conn_status == ESP_HIDH_CONN_STATE_CONNECTED)) {
             if (gHasTarget && memcmp(param->open.bd_addr, gTarget, ESP_BD_ADDR_LEN)) {
-                ESP_LOGW(DS4_TAG, "rejecting controller that does not match DS4 MAC");
+                setError("rejected controller not matching DS4 MAC", 0);
                 esp_bt_hid_host_disconnect(param->open.bd_addr);
                 break;
             }
@@ -439,6 +452,7 @@ static void hidhCallback(esp_hidh_cb_event_t event, esp_hidh_cb_param_t *param) 
             sendOutput();
         }
         else if (param->open.conn_status == ESP_HIDH_CONN_STATE_DISCONNECTED) {
+            setError("hid open failed", param->open.status);
             if (gPairState == kPairConnecting) {
                 gPairState = kPairIdle;
                 gNextAttempt = nowMs() + DS4_RETRY_MS;
@@ -465,15 +479,21 @@ static void hidhCallback(esp_hidh_cb_event_t event, esp_hidh_cb_param_t *param) 
 /*                  X S   I N   C   F U N C T I O N S                           */
 /********************************************************************************/
 
-static int startBluetooth(void) {
+/* Returns NULL on success, otherwise the name of the step that failed (*errOut set) */
+static const char *startBluetooth(esp_err_t *errOut) {
     esp_err_t err;
+    const char *step;
     esp_bt_controller_config_t cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
     esp_bt_controller_mem_release(ESP_BT_MODE_BLE);
 
+    step = "controller init";
     if ((err = esp_bt_controller_init(&cfg)) != ESP_OK) goto bail;
+    step = "controller enable";
     if ((err = esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT)) != ESP_OK) goto bail;
+    step = "bluedroid init";
     if ((err = esp_bluedroid_init()) != ESP_OK) goto bail;
+    step = "bluedroid enable";
     if ((err = esp_bluedroid_enable()) != ESP_OK) goto bail;
 
     esp_bt_gap_register_callback(gapCallback);
@@ -486,16 +506,19 @@ static int startBluetooth(void) {
     esp_bt_pin_code_t pin = { 0 };
     esp_bt_gap_set_pin(ESP_BT_PIN_TYPE_VARIABLE, 0, pin);
 
+    step = "hid host register";
     if ((err = esp_bt_hid_host_register_callback(hidhCallback)) != ESP_OK) goto bail;
+    step = "hid host init";
     if ((err = esp_bt_hid_host_init()) != ESP_OK) goto bail;
 
     /* Let the bonded controller connect to us when PS is pressed */
     esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
-    return 1;
+    return NULL;
 
 bail:
-    ESP_LOGE(DS4_TAG, "bluetooth start failed: %s", esp_err_to_name(err));
-    return 0;
+    ESP_LOGE(DS4_TAG, "bluetooth %s failed: %s", step, esp_err_to_name(err));
+    *errOut = err;
+    return step;
 }
 
 /*
@@ -516,8 +539,10 @@ void xs_ds4_init(xsMachine *the) {
         return;
     gInitialized = 1;
 
-    if (!startBluetooth())
-        xsUnknownError("bluetooth start failed");
+    esp_err_t err = ESP_OK;
+    const char *failed = startBluetooth(&err);
+    if (failed)
+        xsUnknownError("bluetooth %s failed: %s (0x%x)", failed, esp_err_to_name(err), (unsigned)err);
 }
 
 /*
@@ -540,15 +565,28 @@ void xs_ds4_check_connection_changed(xsMachine *the) {
 
 /*
  * xs_ds4_get_state(): string
- * "connected" | "pairing" | "waiting"
+ * "connected" | "starting" | "pairing" | "waiting"
  */
 void xs_ds4_get_state(xsMachine *the) {
     if (gConnected)
         xsmcSetString(xsResult, "connected");
-    else if (gPairState != kPairIdle)
+    else if (!gHidReady)
+        xsmcSetString(xsResult, "starting");
+    else if ((gPairState != kPairIdle) || needsPairing())
         xsmcSetString(xsResult, "pairing");
     else
         xsmcSetString(xsResult, "waiting");
+}
+
+/*
+ * xs_ds4_get_last_error(): string | undefined
+ * The latest Bluetooth error, returned once after it occurs.
+ */
+void xs_ds4_get_last_error(xsMachine *the) {
+    if (gLastErrorChanged) {
+        gLastErrorChanged = 0;
+        xsmcSetString(xsResult, gLastError);
+    }
 }
 
 /*

@@ -24,6 +24,24 @@ The Bluetooth Classic (Bluedroid + HID Host) settings are included in `native/es
 > When using those boards, append the contents of the target's `sdkconfig.defaults` to `native/esp32/sdkconfig/sdkconfig.defaults`.
 > No extra work is needed for the plain `esp32` target (`-p esp32`).
 
+### Moddable SDK Patch (Required)
+
+When Bluetooth is enabled, the Moddable SDK releases the Bluetooth Classic memory at startup (`build/devices/esp32/lib/main/main.c`).
+The DualShock4 uses Bluetooth Classic, so without a patch the ESP32 stops with `bluetooth controller init failed (0x103)` and keeps restarting.
+
+Change the following lines in `main.c` (apps that only use BLE behave the same as before).
+
+```c
+// before
+#if CONFIG_BT_ENABLED
+// after
+#if CONFIG_BT_ENABLED && !CONFIG_BT_CLASSIC_ENABLED
+```
+
+```sh
+sed -i 's/^#if CONFIG_BT_ENABLED$/#if CONFIG_BT_ENABLED \&\& !CONFIG_BT_CLASSIC_ENABLED/' $MODDABLE/build/devices/esp32/lib/main/main.c
+```
+
 ### Tested Versions
 
 | Software | Version |
@@ -31,6 +49,8 @@ The Bluetooth Classic (Bluedroid + HID Host) settings are included in `native/es
 | Moddable SDK | 5.12.0 |
 | ESP-IDF | v5.5.1 |
 | node-red-mcu | e91b670 |
+
+Pairing, reconnection, input, LED and rumble were checked on real hardware (ESP32-D0WDQ6 and a DualShock4) with the Moddable SDK patch applied.
 
 ### Build Troubleshooting
 
@@ -67,7 +87,7 @@ Only one DualShock4 connection is supported. Use a single configuration node.
 
 ### dualshock4 in
 
-Receives controller input. A message is sent only when a selected input changes.
+Receives controller input. A message is sent only when a selected input changes (sticks and triggers by 2 or more).
 
 **Output data (`msg.payload`):**
 
@@ -124,9 +144,12 @@ The in / out nodes show the connection state.
 
 | Status | Meaning |
 |------|------|
+| starting | Starting Bluetooth |
 | pairing | Searching for / connecting to a DualShock4 in pairing mode |
 | waiting (press PS) | Paired. Waiting for the PS button on the DualShock4 |
 | connected | Connected |
+
+If pairing or connecting fails, the reason is shown as a warning in the debug sidebar.
 
 ## Pairing
 

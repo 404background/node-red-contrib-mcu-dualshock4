@@ -6,7 +6,7 @@ Reads buttons, sticks and triggers, and controls the LED and rumble over Bluetoo
 ## Requirements
 
 - **Original ESP32 only** (ESP32-S2/S3/C3/C6/H2 have no Bluetooth Classic)
-- [Moddable SDK](https://github.com/Moddable-OpenSource/moddable) (ESP-IDF v5.x)
+- [Moddable SDK](https://github.com/Moddable-OpenSource/moddable) (ESP-IDF v5.x), with a one-line patch for Bluetooth Classic ([details](docs/en/usage.md#moddable-sdk-patch-required))
 - [Node-RED MCU Edition](https://github.com/phoddie/node-red-mcu)
 
 ## Install

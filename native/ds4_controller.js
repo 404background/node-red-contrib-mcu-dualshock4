@@ -5,8 +5,8 @@
  * the same physical Bluetooth Classic connection via this class.
  *
  * Listener pattern: each node registers a listener object with
- * { connect(), disconnect(), data(payload), state(name) } callbacks.
- * state(name) receives "connected" | "pairing" | "waiting".
+ * { connect(), disconnect(), data(payload), state(name), error(message) }
+ * callbacks. state(name) receives "connected" | "starting" | "pairing" | "waiting".
  *
  * Pairing: put the DualShock4 into pairing mode (hold SHARE + PS until the
  * light bar double-flashes). The ESP32 connects to the DS4 MAC passed to
@@ -72,6 +72,12 @@ class DS4Controller {
             if (state !== this.#state) {
                 this.#state = state;
                 this._notify("state", state);
+            }
+
+            const error = this._nativeGetLastError();
+            if (error) {
+                trace(`DS4: ${error}\n`);
+                this._notify("error", error);
             }
 
             if (!this.#connected) return;
@@ -169,6 +175,7 @@ class DS4Controller {
     _nativeInit(ds4Mac) @ "xs_ds4_init"
     _nativeCheckConnectionChanged() @ "xs_ds4_check_connection_changed"
     _nativeGetState() @ "xs_ds4_get_state"
+    _nativeGetLastError() @ "xs_ds4_get_last_error"
     _nativeGetLocalAddress() @ "xs_ds4_get_local_address"
     _nativeGetPeerAddress() @ "xs_ds4_get_peer_address"
     _nativeUnpair() @ "xs_ds4_unpair"

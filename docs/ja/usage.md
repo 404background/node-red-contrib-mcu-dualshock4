@@ -24,6 +24,24 @@ Bluetooth Classic(Bluedroid + HID Host)の設定は `native/esp32/sdkconfig/sdkc
 > これらのボードを使う場合は、ターゲット側の `sdkconfig.defaults` の内容を `native/esp32/sdkconfig/sdkconfig.defaults` に追記してください。
 > 素の `esp32` ターゲット（`-p esp32`）では追加作業は不要です。
 
+### Moddable SDKの修正（必須）
+
+Moddable SDKは、Bluetoothが有効なとき起動時にBluetooth Classic用のメモリを解放します（`build/devices/esp32/lib/main/main.c`）。
+DualShock4はBluetooth Classicを使うため、そのままでは起動時に `bluetooth controller init failed (0x103)` で停止し、再起動を繰り返します。
+
+`main.c` の次の行を変更してください（BLEだけを使うアプリの動作は変わりません）。
+
+```c
+// 変更前
+#if CONFIG_BT_ENABLED
+// 変更後
+#if CONFIG_BT_ENABLED && !CONFIG_BT_CLASSIC_ENABLED
+```
+
+```sh
+sed -i 's/^#if CONFIG_BT_ENABLED$/#if CONFIG_BT_ENABLED \&\& !CONFIG_BT_CLASSIC_ENABLED/' $MODDABLE/build/devices/esp32/lib/main/main.c
+```
+
 ### 動作確認済みのバージョン
 
 | ソフトウェア | バージョン |
@@ -31,6 +49,8 @@ Bluetooth Classic(Bluedroid + HID Host)の設定は `native/esp32/sdkconfig/sdkc
 | Moddable SDK | 5.12.0 |
 | ESP-IDF | v5.5.1 |
 | node-red-mcu | e91b670 |
+
+ESP32（ESP32-D0WDQ6）とDualShock4の実機で、ペアリング・再接続・入力・LED・振動を確認しています（Moddable SDKの修正後）。
 
 ### ビルド時のトラブルシューティング
 
@@ -67,7 +87,7 @@ rm -rf ~/.node-red/mcu-plugin-cache/<名前>
 
 ### dualshock4 in
 
-コントローラの入力を受信します。選択した項目が変化したときだけメッセージを送信します。
+コントローラの入力を受信します。選択した項目が変化したときだけメッセージを送信します（スティック・トリガーは値が2以上変化したとき）。
 
 **出力データ（`msg.payload`）:**
 
@@ -124,9 +144,12 @@ in / out ノードに接続状態が表示されます。
 
 | 表示 | 意味 |
 |------|------|
+| starting | Bluetoothを起動中 |
 | pairing | ペアリングモードのDS4を探索・接続中 |
 | waiting (press PS) | ペアリング済み。DS4のPSボタンが押されるのを待機中 |
 | connected | 接続中 |
+
+ペアリングや接続に失敗した場合は、原因がデバッグサイドバーに警告として表示されます。
 
 ## ペアリング
 
