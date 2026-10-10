@@ -27,7 +27,7 @@ The Bluetooth Classic (Bluedroid + HID Host) settings are included in `native/es
 ### Moddable SDK Patch (Required)
 
 The Moddable SDK supports only BLE, so when Bluetooth is enabled it releases the Bluetooth Classic memory at startup (`build/devices/esp32/lib/main/main.c`; added in 2018 by commit `7ed07750e` "free bluetooth classic reserve memory at startup - we don't support classic", and unchanged in 5.12.0, 7.2.1 and the latest 9.5.0).
-The DualShock4 uses Bluetooth Classic, so without a patch the ESP32 stops with `bluetooth controller init failed (0x103)` and keeps restarting.
+The DualShock4 uses Bluetooth Classic, so without a patch the dualshock4 config node reports `BT init failed (0x103): patch Moddable main.c` and Bluetooth does not start.
 
 Change the following lines in `main.c` (apps that only use BLE behave the same as before).
 
@@ -77,7 +77,7 @@ rm -rf ~/.node-red/mcu-plugin-cache/<name>
 | **dualshock4 in** | Receives controller input |
 | **dualshock4 out** | Sends LED / rumble commands to the controller |
 
-Only one DualShock4 connection is supported. Use a single configuration node.
+Only one DualShock4 connection is supported. Use a single configuration node (config nodes with a different DS4 MAC or interval report `use only one dualshock4 config`).
 
 ### dualshock4 config
 
@@ -228,7 +228,6 @@ A sample project is included to test that the C extension (Bluetooth implementat
 2. **Check**:
    xsbug prints the following.
    ```
-   DS4: ESP32 Bluetooth address 24:0a:c4:12:34:58
    [DS4] pairing
    ```
    Hold **SHARE + PS** on the DualShock4 to enter pairing mode. Once connected, the input state is printed in real time.

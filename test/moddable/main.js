@@ -49,11 +49,7 @@ function changed(prev, cur) {
 }
 
 controller.addListener({
-    connect() {
-        trace("[DS4] connected\n");
-    },
     disconnect() {
-        trace("[DS4] disconnected\n");
         last = lastOutput = undefined;
     },
     state(state) {
@@ -84,4 +80,5 @@ controller.addListener({
     }
 });
 
-controller.start(DS4_MAC, POLL_MS);
+const error = controller.start(DS4_MAC, POLL_MS);
+if (error) trace(`[DS4] ${error}\n`);

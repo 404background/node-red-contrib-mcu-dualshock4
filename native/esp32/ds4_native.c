@@ -97,6 +97,7 @@ typedef struct {
 static portMUX_TYPE gMux = portMUX_INITIALIZER_UNLOCKED;
 
 static uint8_t gInitialized;
+static char gInitError[64];
 static volatile uint8_t gHidReady;
 static volatile uint8_t gConnected;
 static uint8_t gPrevConnected;
@@ -505,6 +506,10 @@ static void hidhCallback(esp_hidh_cb_event_t event, esp_hidh_cb_param_t *param) 
     case ESP_HIDH_CLOSE_EVT:
     case ESP_HIDH_VC_UNPLUG_EVT:
         gConnected = 0;
+        /* Do not resume rumbling on the next connection */
+        portENTER_CRITICAL(&gMux);
+        gOutput.smallRumble = gOutput.largeRumble = 0;
+        portEXIT_CRITICAL(&gMux);
         break;
 
     case ESP_HIDH_DATA_IND_EVT:
@@ -564,7 +569,7 @@ bail:
 }
 
 /*
- * xs_ds4_init(ds4Mac: string): void
+ * xs_ds4_init(ds4Mac: string): string | undefined (error message)
  *
  * ds4Mac: the DualShock4's own Bluetooth address. Only this controller is
  *         paired / accepted. Empty: pair with the first controller found.
@@ -577,17 +582,19 @@ void xs_ds4_init(xsMachine *the) {
         gHasTarget = 1;
     }
 
-    if (gInitialized)
-        return;
-    gInitialized = 1;
+    if (!gInitialized) {
+        gInitialized = 1;
 
-    esp_err_t err = ESP_OK;
-    const char *failed = startBluetooth(&err);
-    /* XS limits error messages to 127 characters; ds4_controller.js traces the fix steps */
-    if (failed && (ESP_ERR_INVALID_STATE == err) && !strcmp(failed, "controller init"))
-        xsUnknownError("bluetooth controller init failed (0x103): Moddable main.c needs a patch (see README)");
-    if (failed)
-        xsUnknownError("bluetooth %s failed: %s (0x%x)", failed, esp_err_to_name(err), (unsigned)err);
+        esp_err_t err = ESP_OK;
+        const char *failed = startBluetooth(&err);
+        /* Returned, not thrown: a throw also stops in xsbug */
+        if (failed && (ESP_ERR_INVALID_STATE == err) && !strcmp(failed, "controller init"))
+            snprintf(gInitError, sizeof(gInitError), "BT init failed (0x103): patch Moddable main.c");
+        else if (failed)
+            snprintf(gInitError, sizeof(gInitError), "BT %s failed (0x%x)", failed, (unsigned)err);
+    }
+    if (gInitError[0])
+        xsmcSetString(xsResult, gInitError);
 }
 
 /*

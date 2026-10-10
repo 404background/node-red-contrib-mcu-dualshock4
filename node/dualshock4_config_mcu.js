@@ -11,6 +11,9 @@ import DS4Controller from "ds4_controller";
 
 const MAC_PATTERN = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
 
+/* Only one DualShock4 connection exists: the first config node owns it */
+let owner;
+
 class DualShock4ConfigNode extends Node {
     #controller;
     #error;
@@ -19,32 +22,46 @@ class DualShock4ConfigNode extends Node {
         super.onStart(config);
 
         const interval = Number(config.interval) > 0 ? Number(config.interval) : 100;
-        const ds4mac = config.ds4mac || "";
-        if (!MAC_PATTERN.test(ds4mac)) {
-            this.#error = ds4mac ? "invalid DS4 MAC" : "DS4 MAC not set";
-            this.error(`${this.#error}: set the DualShock4 Bluetooth address in the dualshock4 config node`);
+        const ds4mac = (config.ds4mac || "").toLowerCase();
+
+        if (owner) {
+            /* Another config node already started the connection: share it */
+            if ((owner.ds4mac !== ds4mac) || (owner.interval !== interval)) {
+                this.#error = "use only one dualshock4 config";
+                this.error(this.#error);
+            } else {
+                this.#controller = owner.controller;
+                this.#error = owner.error;
+            }
             return;
         }
 
-        this.#controller = DS4Controller.getInstance();
-        try {
-            this.#controller.start(ds4mac, interval);
-
-            /* SixaxisPairTool shows the ESP32 as "Current Master" after pairing */
-            if (ds4mac.toLowerCase() === this.#controller.localAddress) {
-                this.#controller.stop();
-                this.#error = "DS4 MAC is the ESP32 address";
-                this.error(`${this.#error}: set the DualShock4's own address ("Device Address" in SixaxisPairTool, not "Current Master")`);
-                return;
-            }
-
-            this.#controller.addListener({
-                error: (message) => this.warn(`DS4: ${message}`)
-            });
-        } catch (e) {
-            this.#error = e?.message ?? String(e);
+        this.#error = this.#start(ds4mac, interval);
+        if (this.#error)
             this.error(this.#error);
+        owner = { ds4mac, interval, controller: this.#controller, error: this.#error };
+    }
+
+    /* Returns an error message, or undefined when started */
+    #start(ds4mac, interval) {
+        if (!MAC_PATTERN.test(ds4mac))
+            return ds4mac ? "invalid DS4 MAC" : "DS4 MAC not set";
+
+        const controller = DS4Controller.getInstance();
+        const error = controller.start(ds4mac, interval);
+        if (error)
+            return error;
+
+        /* SixaxisPairTool shows the ESP32 as "Current Master" after pairing */
+        if (ds4mac === controller.localAddress) {
+            controller.stop();
+            return "DS4 MAC is the ESP32 (use Device Address)";
         }
+
+        this.#controller = controller;
+        controller.addListener({
+            error: (message) => this.warn(`DS4: ${message}`)
+        });
     }
 
     /*

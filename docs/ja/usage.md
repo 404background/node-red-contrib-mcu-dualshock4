@@ -27,7 +27,7 @@ Bluetooth Classic(Bluedroid + HID Host)の設定は `native/esp32/sdkconfig/sdkc
 ### Moddable SDKの修正（必須）
 
 Moddable SDKはBLEのみをサポートしているため、Bluetoothが有効なとき起動時にBluetooth Classic用のメモリを解放します（`build/devices/esp32/lib/main/main.c`。2018年のコミット `7ed07750e`「free bluetooth classic reserve memory at startup - we don't support classic」で追加され、5.12.0・7.2.1・最新の9.5.0でも同じです）。
-DualShock4はBluetooth Classicを使うため、そのままでは起動時に `bluetooth controller init failed (0x103)` で停止し、再起動を繰り返します。
+DualShock4はBluetooth Classicを使うため、そのままではdualshock4 config ノードが `BT init failed (0x103): patch Moddable main.c` のエラーを出し、Bluetoothが起動しません。
 
 `main.c` の次の行を変更してください（BLEだけを使うアプリの動作は変わりません）。
 
@@ -77,7 +77,7 @@ rm -rf ~/.node-red/mcu-plugin-cache/<名前>
 | **dualshock4 in** | コントローラの入力を受信します |
 | **dualshock4 out** | LED・振動などをコントローラへ送信します |
 
-接続できるDualShock4は1台です。設定ノードは1つだけ使用してください。
+接続できるDualShock4は1台です。設定ノードは1つだけ使用してください（DS4 MACや取得間隔が異なる設定ノードを複数使うと `use only one dualshock4 config` エラーになります）。
 
 ### dualshock4 config
 
@@ -228,7 +228,6 @@ Node-REDを経由せず、Moddable SDK単体でC拡張（Bluetooth実装）が�
 2. **動作確認**:
    xsbugに以下のように出力されます。
    ```
-   DS4: ESP32 Bluetooth address 24:0a:c4:12:34:58
    [DS4] pairing
    ```
    DualShock4の **SHARE + PS** を長押ししてペアリングモードにすると、接続されて入力状態がリアルタイムで出力されます。
