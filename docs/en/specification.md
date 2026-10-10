@@ -103,51 +103,12 @@ node-red-contrib-mcu-dualshock4/
 The Moddable SDK BLE module supports Bluetooth Low Energy (BLE) only.  
 The DualShock4 uses the HID protocol over Bluetooth Classic (BR/EDR), so the ESP-IDF Classic HID Host is wrapped with XS in C to make it callable from JavaScript.
 
-## References and Third-Party Code
+## Dependencies
 
-### SixaxisPairTool
+This repository contains no third-party source code. The following are required to build and run it (install separately).
 
-- Download: [SixaxisPairTool](https://sixaxispairtool.en.lo4d.com/windows)
-- Use: Checking the DualShock4's own MAC address and pairing target (optional)
-
-### PS4-esp32
-
-- Repository: [PS4-esp32](https://github.com/aed3/PS4-esp32) by Albert III
-- Use: Reference for the DualShock4 input / output report structure
-- Included: Not included in this repository (no source code is used)
-
-### Linux hid-playstation
-
-- Source: [drivers/hid/hid-playstation.c](https://github.com/torvalds/linux/blob/master/drivers/hid/hid-playstation.c)
-- Use: Reference for the Bluetooth output report (0x11) format and CRC32 calculation
-
-### ESP-IDF
-
-- Repository: [ESP-IDF](https://github.com/espressif/esp-idf) by Espressif Systems
-- Use: Bluedroid Classic HID Host / GAP API. Included in the Moddable SDK build
-- License: Apache-2.0
-
-### Moddable SDK
-
-- Repository: [Moddable SDK](https://github.com/Moddable-OpenSource/moddable) by Moddable Tech, Inc.
-- Use: JavaScript runtime (XS engine) on the ESP32. Used as a build dependency
-- Included: Not included in this repository. Install separately
-- License: LGPL-3.0 / GPL-3.0
-
-### Node-RED MCU Edition
-
-- Repository: [node-red-mcu](https://github.com/phoddie/node-red-mcu) by Peter Hoddie
-- Use: Runtime that runs Node-RED flows on microcontrollers
-- Included: Not included in this repository
-
-### node-red-contrib-python-dualshock4
-
-- Repository: [node-red-contrib-python-dualshock4](https://github.com/404background/node-red-contrib-python-dualshock4)
-- Use: Reference for the Node-RED editor UI design (Python DualShock4 node)
-- Included: Not included in this repository
-- License: MIT
-
-### XS in C
-
-- Documentation: [XS in C](https://www.moddable.com/documentation/xs/XS%20in%20C)
-- Use: API reference for calling native C extensions from the Moddable SDK (XS JavaScript)
+| Software | Use | License |
+|----------|-----|---------|
+| [Moddable SDK](https://github.com/Moddable-OpenSource/moddable) | JavaScript runtime (XS engine) on the ESP32 | LGPL-3.0 / GPL-3.0 |
+| [ESP-IDF](https://github.com/espressif/esp-idf) | Bluedroid Classic HID Host / GAP API (part of the Moddable SDK build) | Apache-2.0 |
+| [Node-RED MCU Edition](https://github.com/phoddie/node-red-mcu) | Runs Node-RED flows on microcontrollers | LGPL-3.0 |

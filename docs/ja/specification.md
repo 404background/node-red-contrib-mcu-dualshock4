@@ -103,51 +103,12 @@ node-red-contrib-mcu-dualshock4/
 Moddable SDKのBLEモジュールはBluetooth Low Energy(BLE)のみ対応しています。  
 DualShock4はBluetooth Classic(BR/EDR)のHIDプロトコルを使用するため、ESP-IDFのClassic HID HostをXS in Cでラップし、JavaScriptから呼び出せるようにしています。
 
-## 参考リポジトリ・サードパーティコード
+## 依存ソフトウェア
 
-### SixaxisPairTool
+このリポジトリにはサードパーティのソースコードは含まれていません。ビルド・実行には以下が必要です（別途インストール）。
 
-- 配布元: [SixaxisPairTool](https://sixaxispairtool.en.lo4d.com/windows)
-- 用途: DualShock4本体のMACアドレス・ペアリング先の確認（任意）
-
-### PS4-esp32
-
-- リポジトリ: [PS4-esp32](https://github.com/aed3/PS4-esp32) by Albert III
-- 用途: DualShock4の入力レポート構造・出力レポート構造の参考
-- 同梱: このリポジトリには含まれていません（ソースコードは使用していません）
-
-### Linux hid-playstation
-
-- ソース: [drivers/hid/hid-playstation.c](https://github.com/torvalds/linux/blob/master/drivers/hid/hid-playstation.c)
-- 用途: Bluetooth出力レポート(0x11)のフォーマットとCRC32計算の参考
-
-### ESP-IDF
-
-- リポジトリ: [ESP-IDF](https://github.com/espressif/esp-idf) by Espressif Systems
-- 用途: Bluedroid Classic HID Host / GAP API。Moddable SDKのビルドに含まれます
-- ライセンス: Apache-2.0
-
-### Moddable SDK
-
-- リポジトリ: [Moddable SDK](https://github.com/Moddable-OpenSource/moddable) by Moddable Tech, Inc.
-- 用途: ESP32上で動作するJavaScriptランタイム（XSエンジン）。ビルド時の依存関係として使用。
-- 同梱: このリポジトリには含まれていません。別途インストールが必要です。
-- ライセンス: LGPL-3.0 / GPL-3.0
-
-### Node-RED MCU Edition
-
-- リポジトリ: [node-red-mcu](https://github.com/phoddie/node-red-mcu) by Peter Hoddie
-- 用途: Node-REDフローをマイクロコントローラ上で実行するランタイム
-- 同梱: このリポジトリには含まれていません。
-
-### node-red-contrib-python-dualshock4
-
-- リポジトリ: [node-red-contrib-python-dualshock4](https://github.com/404background/node-red-contrib-python-dualshock4)
-- 用途: Node-REDエディタUIデザインの参考元（Python版DualShock4ノード）
-- 同梱: このリポジトリには含まれていません。
-- ライセンス: MIT
-
-### XS in C
-
-- ドキュメント: [XS in C](https://www.moddable.com/documentation/xs/XS%20in%20C)
-- 用途: ネイティブC拡張をModdable SDK（XS JavaScript）から呼び出すためのAPIリファレンス
+| ソフトウェア | 用途 | ライセンス |
+|-------------|------|-----------|
+| [Moddable SDK](https://github.com/Moddable-OpenSource/moddable) | ESP32上のJavaScriptランタイム（XSエンジン） | LGPL-3.0 / GPL-3.0 |
+| [ESP-IDF](https://github.com/espressif/esp-idf) | Bluedroid Classic HID Host / GAP API（Moddable SDKのビルドに含まれる） | Apache-2.0 |
+| [Node-RED MCU Edition](https://github.com/phoddie/node-red-mcu) | Node-REDフローをマイクロコントローラ上で実行 | LGPL-3.0 |
