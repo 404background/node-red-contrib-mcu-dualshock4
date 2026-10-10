@@ -81,7 +81,7 @@ class DualShock4OutNode extends Node {
 
         if (changed) {
             controller.sendToController();
-            this.status({ fill: "green", shape: "dot", text: "sent" });
+            this.status({ fill: "green", shape: "dot", text: "connected (sent)" });
         }
         done?.();
     }
