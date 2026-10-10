@@ -87,7 +87,6 @@ class DS4Controller {
 
             const error = this._nativeGetLastError();
             if (error) {
-                trace(`DS4: ${error}\n`);
                 this._notify("error", error);
             }
 

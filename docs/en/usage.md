@@ -183,6 +183,14 @@ Even after the ESP32 restarts, **just press the PS button** to connect.
 - With DS4 MAC set: if that DualShock4 is not paired yet, the ESP32 waits for pairing automatically. To switch to another DualShock4, change DS4 MAC
 - If the DualShock4 was paired with a PS4 console or PC in the meantime, send `msg.unpair = true` to the dualshock4 out node to delete the pairing information and pair again
 
+### "rejected xx:xx:xx:xx:xx:xx: not the DS4 MAC"
+
+A device whose address differs from DS4 MAC tried to connect, so it was rejected.
+
+- If the shown address is the DualShock4 you want to use, set DS4 MAC in the dualshock4 config node to that address
+- If the ESP32 still has pairing information of another controller, send `msg.unpair = true` to the dualshock4 out node to delete it, then pair again
+- If the DualShock4 keeps connecting to another device such as a PC or PS4, remove the DualShock4 from that device's Bluetooth settings
+
 ## Sample Flow
 
 Import it from the Node-RED menu "Import → Examples → @background404/node-red-contrib-mcu-dualshock4 → dualshock4" (`examples/dualshock4.json`).

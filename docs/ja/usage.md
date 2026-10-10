@@ -183,6 +183,14 @@ ESP32を再起動しても、**PSボタンを押すだけ**で接続されます
 - DS4 MACを指定している場合: 指定したDualShock4が未ペアリングなら、自動でペアリングを待ちます。別のDualShock4に変えるときはDS4 MACを変更してください
 - DualShock4をPS4本体やPCとペアリングし直した場合は、dualshock4 outノードに `msg.unpair = true` を送ってペアリング情報を削除し、再度ペアリングしてください
 
+### 「rejected xx:xx:xx:xx:xx:xx: not the DS4 MAC」と表示される場合
+
+DS4 MACと異なるアドレスの機器が接続してきたため、接続を拒否しています。
+
+- 表示されたアドレスが使いたいDualShock4のものなら、dualshock4 config ノードのDS4 MACをそのアドレスに直してください
+- ESP32に以前ペアリングした別のコントローラの情報が残っている場合は、dualshock4 outノードに `msg.unpair = true` を送ってペアリング情報を削除してから、再度ペアリングしてください
+- DualShock4がPCやPS4本体など別の機器に接続しに行く場合は、その機器のBluetooth設定からDualShock4を削除してください
+
 ## サンプルフロー
 
 Node-REDのメニュー「読み込み → サンプル → @background404/node-red-contrib-mcu-dualshock4 → dualshock4」から読み込めます（`examples/dualshock4.json`）。

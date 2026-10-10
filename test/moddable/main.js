@@ -59,6 +59,9 @@ controller.addListener({
     state(state) {
         trace(`[DS4] ${state}\n`);
     },
+    error(message) {
+        trace(`[DS4] error: ${message}\n`);
+    },
     data(payload) {
         if (!changed(last, payload)) return;
         last = payload;

@@ -48,6 +48,7 @@
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -129,10 +130,18 @@ static int64_t nowMs(void) {
     return esp_timer_get_time() / 1000;
 }
 
-static void setError(const char *what, int code) {
-    snprintf(gLastError, sizeof(gLastError), "%s (0x%x)", what, code);
+/* Reports an error to JS, unless it repeats the previous one.
+ * Failures of the pairing retries are expected and not reported. */
+static void setError(const char *format, ...) {
+    char message[sizeof(gLastError)];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(message, sizeof(message), format, args);
+    va_end(args);
+    if (!strcmp(message, gLastError))
+        return;
+    strcpy(gLastError, message);
     gLastErrorChanged = 1;
-    ESP_LOGW(DS4_TAG, "%s", gLastError);
 }
 
 static uint8_t clampByte(xsIntegerValue value) {
@@ -331,7 +340,6 @@ static void service(void) {
         ESP_LOGI(DS4_TAG, "pairing: connecting to %s", str);
         gPairState = kPairConnecting;
         if ((err = esp_bt_hid_host_connect(gTarget)) != ESP_OK) {
-            setError("hid connect failed", err);
             gPairState = kPairIdle;
             gNextAttempt = nowMs() + DS4_RETRY_MS;
         }
@@ -341,7 +349,6 @@ static void service(void) {
         gFound = 0;
         gPairState = kPairDiscovering;
         if ((err = esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, DS4_INQUIRY_LEN, 0)) != ESP_OK) {
-            setError("discovery failed", err);
             gPairState = kPairIdle;
             gNextAttempt = nowMs() + DS4_RETRY_MS;
         }
@@ -381,7 +388,7 @@ static void gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *para
         if (param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS)
             ESP_LOGI(DS4_TAG, "paired with %s", param->auth_cmpl.device_name);
         else
-            setError("pairing failed", param->auth_cmpl.stat);
+            setError("pairing failed (0x%x)", param->auth_cmpl.stat);
         break;
 
     case ESP_BT_GAP_PIN_REQ_EVT: {
@@ -430,13 +437,15 @@ static void hidhCallback(esp_hidh_cb_event_t event, esp_hidh_cb_param_t *param) 
             gHidReady = 1;
         }
         else
-            setError("hid host init failed", param->init.status);
+            setError("hid host init failed (0x%x)", param->init.status);
         break;
 
     case ESP_HIDH_OPEN_EVT:
         if ((param->open.status == ESP_HIDH_OK) && (param->open.conn_status == ESP_HIDH_CONN_STATE_CONNECTED)) {
             if (gHasTarget && memcmp(param->open.bd_addr, gTarget, ESP_BD_ADDR_LEN)) {
-                setError("rejected controller not matching DS4 MAC", 0);
+                char str[18];
+                formatMac(param->open.bd_addr, str);
+                setError("rejected %s: not the DS4 MAC", str);
                 esp_bt_hid_host_disconnect(param->open.bd_addr);
                 break;
             }
@@ -452,7 +461,6 @@ static void hidhCallback(esp_hidh_cb_event_t event, esp_hidh_cb_param_t *param) 
             sendOutput();
         }
         else if (param->open.conn_status == ESP_HIDH_CONN_STATE_DISCONNECTED) {
-            setError("hid open failed", param->open.status);
             if (gPairState == kPairConnecting) {
                 gPairState = kPairIdle;
                 gNextAttempt = nowMs() + DS4_RETRY_MS;
