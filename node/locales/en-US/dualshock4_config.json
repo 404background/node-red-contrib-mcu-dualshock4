@@ -6,8 +6,8 @@
             "interval": "Interval"
         },
         "placeholder": {
-            "ds4mac": "XX:XX:XX:XX:XX:XX (required)"
+            "ds4mac": "XX:XX:XX:XX:XX:XX (optional)"
         },
-        "tip": "First time: hold <b>SHARE + PS</b> on the DualShock4 to pair. After that, press <b>PS</b> to connect."
+        "tip": "<b>Connecting</b><ol><li>Write the flow to the ESP32 (DS4 MAC can be left empty)</li><li>Hold <b>SHARE + PS</b> on the DualShock4 until the light bar double-flashes</li><li>The ESP32 pairs with it and shows <code>DS4: connected xx:xx:xx:xx:xx:xx</code> in the debug sidebar</li><li>From then on, press <b>PS</b> to connect</li></ol>To use only that controller, enter the shown address as DS4 MAC. See the help for details."
     }
 }

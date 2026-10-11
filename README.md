@@ -39,16 +39,32 @@ npm install @background404/node-red-contrib-mcu-dualshock4
 
 ## Nodes
 
-- **dualshock4 config** - Connection to the DualShock4 (DS4 MAC, interval), shared by the nodes below
+- **dualshock4 config** - Connection to the DualShock4 (DS4 MAC (optional), interval), shared by the nodes below
 - **dualshock4 in** - Outputs `msg.payload` with `buttons`, `analog` and `status` when the input changes
 - **dualshock4 out** - Sets the LED / rumble / flash from `msg.payload`, e.g. `{ led: { r: 255, g: 0, b: 0 } }`
 
-## Pairing
+## Connecting a DualShock4
 
-1. Set **DS4 MAC** (the DualShock4's Bluetooth address, required) in the dualshock4 config node
-2. Write the flow to the ESP32 and start it
-3. Hold **SHARE + PS** on the DualShock4 until the light bar double-flashes
-4. The ESP32 pairs automatically. After that, just press **PS** to connect
+No PC tool is needed. The ESP32 finds the DualShock4 in pairing mode by itself.
+
+1. Add a **dualshock4 in** / **dualshock4 out** node and a **dualshock4 config** node. **DS4 MAC can be left empty**
+2. Write the flow to the ESP32 and start it (the node status becomes `pairing`)
+3. Hold **SHARE + PS** on the DualShock4 until the light bar double-flashes (pairing mode)
+4. The ESP32 pairs automatically. The status becomes `connected`, and the debug sidebar (and the serial log) shows the DualShock4's address:
+   ```
+   DS4: connected aa:bb:cc:dd:ee:ff. Set it as DS4 MAC to use only this controller
+   ```
+5. From then on, just press **PS** to connect (also after the ESP32 restarts)
+6. Optional: enter that address as **DS4 MAC** and write the flow again. Then only this DualShock4 is paired and accepted
+
+| DS4 MAC | Behavior |
+|---|---|
+| Empty | Pairs with the **first** DualShock4 in pairing mode it finds, then keeps using that controller. If other DualShock4s may be in pairing mode nearby during the first pairing, set DS4 MAC |
+| Set | Pairs with and accepts only that DualShock4. Others are rejected (`rejected xx:xx:...: not the DS4 MAC`) |
+
+- The DualShock4 remembers only one host. After it was paired with a PS4, PC or another ESP32, hold **SHARE + PS** again and this ESP32 pairs with it again
+- To switch to another DualShock4 with DS4 MAC empty, send `msg.unpair = true` to the dualshock4 out node, then put the new controller in pairing mode
+- To check the address beforehand, you can also use "Device Address" in [SixaxisPairTool](https://sixaxispairtool.en.lo4d.com/windows) (only to read it; nothing has to be written to the controller) or the Bluetooth settings of a PC / smartphone
 
 ## Example
 

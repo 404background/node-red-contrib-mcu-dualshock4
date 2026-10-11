@@ -8,7 +8,9 @@
  *      (pairing mode: the controller becomes discoverable).
  *   2. The ESP32 connects to it:
  *        - DS4 MAC configured: connects to that address
- *        - DS4 MAC empty:      inquiry, picks the first "Wireless Controller"
+ *        - DS4 MAC empty:      inquiry, picks the first "Wireless Controller".
+ *          After that the bonded controller is used as if it was configured,
+ *          so other controllers are not paired until it is unpaired.
  *   3. Secure Simple Pairing (Just Works) bonds both sides. The DualShock4
  *      stores the ESP32 address, the ESP32 stores the link key in NVS.
  *
@@ -109,6 +111,7 @@ static esp_bd_addr_t gTarget;
 static volatile uint8_t gPairState = kPairIdle;
 static volatile uint8_t gFound;
 static esp_bd_addr_t gFoundAddr;
+static esp_bd_addr_t gWatchAddr;    /* controller to look for while kPairWatching */
 static volatile int64_t gNextAttempt;
 
 static ds4_state_t gState;
@@ -185,6 +188,23 @@ static int isBonded(const esp_bd_addr_t addr) {
                 break;
             }
         }
+    }
+    c_free(list);
+    return found;
+}
+
+/* The first bonded controller, used when no DS4 MAC is configured */
+static int getBondedController(esp_bd_addr_t addr) {
+    int count = esp_bt_gap_get_bond_device_num();
+    if (count <= 0) return 0;
+
+    esp_bd_addr_t *list = c_malloc(sizeof(esp_bd_addr_t) * count);
+    if (!list) return 0;
+
+    int found = 0;
+    if ((esp_bt_gap_get_bond_device_list(&count, list) == ESP_OK) && (count > 0)) {
+        memcpy(addr, list[0], ESP_BD_ADDR_LEN);
+        found = 1;
     }
     c_free(list);
     return found;
@@ -336,12 +356,15 @@ static void service(void) {
         return;
     esp_err_t err;
     if (!needsPairing()) {
-        if (!gHasTarget)
-            return;
         /* Bonded: the controller connects by itself when PS is pressed.
          * The DualShock4 remembers only one host, so it may have been paired
          * with another ESP32 since. It is discoverable only in pairing mode
-         * (SHARE + PS): when it shows up, pair again. */
+         * (SHARE + PS): when it shows up, pair again. Without a DS4 MAC the
+         * bonded controller is the one to look for. */
+        if (gHasTarget)
+            memcpy(gWatchAddr, gTarget, ESP_BD_ADDR_LEN);
+        else if (!getBondedController(gWatchAddr))
+            return;
         gFound = 0;
         gPairState = kPairWatching;
         if (esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, DS4_WATCH_INQUIRY_LEN, 0) != ESP_OK)
@@ -379,7 +402,7 @@ static void gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *para
     switch (event) {
     case ESP_BT_GAP_DISC_RES_EVT:
         if ((gPairState == kPairWatching) && !gFound &&
-            !memcmp(param->disc_res.bda, gTarget, ESP_BD_ADDR_LEN) && isController(param)) {
+            !memcmp(param->disc_res.bda, gWatchAddr, ESP_BD_ADDR_LEN) && isController(param)) {
             memcpy(gFoundAddr, param->disc_res.bda, ESP_BD_ADDR_LEN);
             gFound = 1;
             esp_bt_gap_cancel_discovery();
@@ -572,7 +595,8 @@ bail:
  * xs_ds4_init(ds4Mac: string): string | undefined (error message)
  *
  * ds4Mac: the DualShock4's own Bluetooth address. Only this controller is
- *         paired / accepted. Empty: pair with the first controller found.
+ *         paired / accepted. Empty: pair with the first controller found,
+ *         then keep using that bonded controller.
  * Bluetooth is started only once; later calls only update the address.
  */
 void xs_ds4_init(xsMachine *the) {
@@ -581,6 +605,8 @@ void xs_ds4_init(xsMachine *the) {
         memcpy(gTarget, addr, sizeof(addr));
         gHasTarget = 1;
     }
+    else
+        gHasTarget = 0;
 
     if (!gInitialized) {
         gInitialized = 1;

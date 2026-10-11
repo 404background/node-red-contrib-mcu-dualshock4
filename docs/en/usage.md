@@ -82,7 +82,7 @@ Only one DualShock4 connection is supported. Use a single configuration node (co
 ### dualshock4 config
 
 **Settings:**
-- **DS4 MAC** - Bluetooth MAC address of the DualShock4 to pair / connect (**required**; without it an error is reported and nothing connects)
+- **DS4 MAC** - Bluetooth MAC address of the DualShock4 to pair / connect (optional). Empty: pairs with the first DualShock4 in pairing mode found and keeps using it. Set: only that DualShock4 is paired and accepted
 - **Interval** - Polling interval of the controller state (ms, default 100)
 
 ### dualshock4 in
@@ -163,14 +163,20 @@ If pairing or connecting fails, the reason is shown as a warning in the debug si
 1. Write the flow to the ESP32 and start it (the node status becomes `pairing`)
 2. Hold **SHARE + PS** on the DualShock4 until the light bar double-flashes (pairing mode)
 3. The ESP32 connects to the DualShock4 and pairs automatically (the node status becomes `connected`)
+4. With DS4 MAC empty, the address of the paired DualShock4 is shown in the debug sidebar (and the serial log):  
+   `DS4: connected aa:bb:cc:dd:ee:ff. Set it as DS4 MAC to use only this controller`
 
-Set the MAC address of the DualShock4 to pair in DS4 MAC of the dualshock4 config node beforehand.  
-To use a specific DualShock4 only, or when several controllers are nearby, set DS4 MAC.
+DS4 MAC can be left empty: the ESP32 pairs with the first DualShock4 in pairing mode it finds, and afterwards keeps using that bonded controller (other controllers are not paired until `msg.unpair`).  
+If other DualShock4s may be in pairing mode nearby during the first pairing, or to fix the controller explicitly, set DS4 MAC (for example the address shown in step 4).
 
-### Checking the DualShock4 MAC Address
+### Checking the DualShock4 MAC Address (optional)
 
-- **[SixaxisPairTool](https://sixaxispairtool.en.lo4d.com/windows) (Windows GUI, recommended)**  
-  Connect the DualShock4 to a PC with a USB cable to see its own MAC address (Device Address) and the currently stored pairing target (Current Master).  
+Not needed for pairing. Use one of these to set DS4 MAC beforehand.
+
+- **Pair once with DS4 MAC empty** (recommended)  
+  The address is shown in the debug sidebar as in step 4 above
+- **[SixaxisPairTool](https://sixaxispairtool.en.lo4d.com/windows) (Windows GUI)**  
+  Used only to read the address; nothing has to be written to the controller. Connect the DualShock4 to a PC with a USB cable to see its own MAC address (Device Address) and the currently stored pairing target (Current Master).  
   Set **Device Address** as DS4 MAC. After pairing with the ESP32, Current Master shows the ESP32's own address (setting it is reported as an error)
 - **Bluetooth settings on a PC / smartphone**  
   Shows the address of the DualShock4 ("Wireless Controller") in pairing mode
@@ -187,6 +193,7 @@ Even after the ESP32 restarts, **just press the PS button** to connect.
 ### Re-pairing
 
 - With DS4 MAC set: if that DualShock4 is not paired yet, the ESP32 waits for pairing automatically. To switch to another DualShock4, change DS4 MAC
+- With DS4 MAC empty: to switch to another DualShock4, send `msg.unpair = true` to the dualshock4 out node, then put the new controller in pairing mode
 - Even after the DualShock4 was paired with a PS4 console, PC or another ESP32, hold **SHARE + PS** to put it in pairing mode: the ESP32 detects it and pairs again automatically (`msg.unpair` is not needed)
 
 ### Using several ESP32s
@@ -194,7 +201,7 @@ Even after the ESP32 restarts, **just press the PS button** to connect.
 The DualShock4 remembers only one host. Pairing with a new host overwrites the previous one, so it cannot be registered with several ESP32s at the same time.  
 To switch, power on the ESP32 you want to use and hold **SHARE + PS** on the DualShock4. It pairs with that ESP32 again, and afterwards the PS button is enough to connect.
 
-- A DualShock4 in pairing mode pairs with whichever powered-on ESP32 (with the same DS4 MAC) finds it first. Power off the other ESP32s when switching
+- A DualShock4 in pairing mode pairs with whichever powered-on ESP32 (with the same DS4 MAC, or with it empty) finds it first. Power off the other ESP32s when switching
 
 ### "rejected xx:xx:xx:xx:xx:xx: not the DS4 MAC"
 

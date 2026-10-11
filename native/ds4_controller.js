@@ -10,8 +10,8 @@
  *
  * Pairing: put the DualShock4 into pairing mode (hold SHARE + PS until the
  * light bar double-flashes). The ESP32 connects to the DS4 MAC passed to
- * start(), or to the first controller found when it is empty. After that,
- * pressing PS reconnects the controller.
+ * start(), or to the first controller found when it is empty (that bonded
+ * controller is then kept). After that, pressing PS reconnects the controller.
  */
 
 import Timer from "timer";

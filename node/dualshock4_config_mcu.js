@@ -3,7 +3,8 @@
  *
  * Configuration node: owns the Bluetooth connection to one DualShock4
  * (DS4 MAC, polling interval). dualshock4 in / out nodes attach to it.
- * DS4 MAC is required; without it Bluetooth is not started.
+ * DS4 MAC is optional: when empty, the first DualShock4 in pairing mode is
+ * paired and its address is reported, so it can be entered afterwards.
  */
 
 import { Node } from "nodered";
@@ -44,8 +45,8 @@ class DualShock4ConfigNode extends Node {
 
     /* Returns an error message, or undefined when started */
     #start(ds4mac, interval) {
-        if (!MAC_PATTERN.test(ds4mac))
-            return ds4mac ? "invalid DS4 MAC" : "DS4 MAC not set";
+        if (ds4mac && !MAC_PATTERN.test(ds4mac))
+            return "invalid DS4 MAC";
 
         const controller = DS4Controller.getInstance();
         const error = controller.start(ds4mac, interval);
@@ -53,14 +54,23 @@ class DualShock4ConfigNode extends Node {
             return error;
 
         /* SixaxisPairTool shows the ESP32 as "Current Master" after pairing */
-        if (ds4mac === controller.localAddress) {
+        if (ds4mac && (ds4mac === controller.localAddress)) {
             controller.stop();
             return "DS4 MAC is the ESP32 (use Device Address)";
         }
 
         this.#controller = controller;
+        let reported;
         controller.addListener({
-            error: (message) => this.warn(`DS4: ${message}`)
+            error: (message) => this.warn(`DS4: ${message}`),
+            connect: () => {
+                /* Without DS4 MAC, tell which controller was paired (once per address) */
+                const address = controller.peerAddress;
+                if (ds4mac || !address || (address === reported))
+                    return;
+                reported = address;
+                this.warn(`DS4: connected ${address}. Set it as DS4 MAC to use only this controller`);
+            }
         });
     }
 

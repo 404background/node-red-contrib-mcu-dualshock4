@@ -6,8 +6,8 @@
             "interval": "取得間隔"
         },
         "placeholder": {
-            "ds4mac": "XX:XX:XX:XX:XX:XX（必須）"
+            "ds4mac": "XX:XX:XX:XX:XX:XX（省略可）"
         },
-        "tip": "初回はDualShock4の <b>SHARE + PS</b> を長押ししてペアリングします。以降は <b>PS</b> ボタンで接続されます。"
+        "tip": "<b>接続手順</b><ol><li>フローをESP32に書き込む（DS4 MACは空欄のままでよい）</li><li>DualShock4の <b>SHARE + PS</b> をライトバーが2回ずつ点滅するまで長押し</li><li>ESP32がペアリングし、デバッグサイドバーに <code>DS4: connected xx:xx:xx:xx:xx:xx</code> と表示される</li><li>以降は <b>PS</b> ボタンで接続される</li></ol>このコントローラだけを使う場合は、表示されたアドレスをDS4 MACに入力します。詳しくはヘルプを参照してください。"
     }
 }

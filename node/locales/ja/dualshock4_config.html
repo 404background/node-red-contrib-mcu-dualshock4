@@ -4,19 +4,39 @@
 
     <h3>プロパティ</h3>
     <dl class="message-properties">
-        <dt>DS4 MAC</dt>
-        <dd><b>必須。</b>使用するDualShock4のBluetoothアドレス。他のコントローラからの接続は拒否します。
-            アドレスは <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a>（USB接続）の「Device Address」（「Current Master」はペアリング先のアドレスなので使いません）、
-            またはペアリングモード中のPC・スマートフォンのBluetooth設定で確認できます。</dd>
+        <dt class="optional">DS4 MAC</dt>
+        <dd>使用するDualShock4のBluetoothアドレス（コントローラ自身のアドレス）。
+            <ul>
+                <li><b>空欄</b>：ペアリングモードのDualShock4のうち最初に見つかったものとペアリングし、以降はそのコントローラを使い続けます。</li>
+                <li><b>指定あり</b>：このDualShock4だけをペアリング・接続し、他のコントローラは拒否します。
+                    近くで他のDualShock4がペアリングモードになる可能性がある場合に指定してください。</li>
+            </ul>
+        </dd>
         <dt>取得間隔</dt>
         <dd>コントローラの状態を読み取る間隔（ミリ秒、10以上）。</dd>
     </dl>
 
-    <h3>ペアリング</h3>
-    <p>初回のみ、DualShock4の <b>SHARE + PS</b> をライトバーが素早く点滅するまで長押しします。
-       ESP32が自動でペアリングします。以降は <b>PS</b> ボタンを押すだけで接続されます。
-       DualShock4が記憶できるペアリング先は1台だけです。PS4・PC・別のESP32とペアリングした後は、
-       もう一度 <b>SHARE + PS</b> を長押しすればこのESP32とペアリングし直します。</p>
+    <h3>接続手順</h3>
+    <ol>
+        <li>フローをESP32に書き込んで起動します。DS4 MACは空欄のままで構いません。ノードの状態が <code>pairing</code> になります。</li>
+        <li>DualShock4の <b>SHARE + PS</b> を、ライトバーが2回ずつ点滅するまで長押しします（ペアリングモード）。</li>
+        <li>ESP32が見つけて自動でペアリングします。状態が <code>connected</code> になり、デバッグサイドバーに
+            <code>DS4: connected xx:xx:xx:xx:xx:xx</code>（DualShock4のアドレス）が表示されます。</li>
+        <li>以降は <b>PS</b> ボタンを押すだけで接続されます（ESP32を再起動した後も同じです）。</li>
+        <li>任意：表示されたアドレスをDS4 MACに入力して書き込み直すと、このコントローラだけを使うようになります。</li>
+    </ol>
+    <p>PC用のツールは不要です。事前にアドレスを調べたい場合は、
+       <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a>（USB接続）の「Device Address」
+       （アドレスを読むためだけに使い、書き込みはしません。「Current Master」はペアリング先のアドレスでコントローラのものではありません）、
+       またはペアリングモード中のPC・スマートフォンのBluetooth設定で確認できます。</p>
+
+    <h3>ペアリングし直す・切り替える</h3>
+    <ul>
+        <li>DualShock4が記憶できるペアリング先は1台だけです。PS4・PC・別のESP32とペアリングした後は、
+            もう一度 <b>SHARE + PS</b> を長押しすれば、このESP32が検出してペアリングし直します。</li>
+        <li>別のDualShock4に替える場合：DS4 MACを指定しているなら新しいアドレスに変更します。
+            空欄の場合は <code>dualshock4 out</code> ノードに <code>msg.unpair = true</code> を送ってから、新しいコントローラをペアリングモードにします。</li>
+    </ul>
 
     <p>接続できるDualShock4は1台です。設定ノードは1つだけ使用してください。</p>
 </script>

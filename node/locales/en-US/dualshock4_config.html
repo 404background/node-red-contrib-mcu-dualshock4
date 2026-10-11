@@ -4,20 +4,41 @@
 
     <h3>Properties</h3>
     <dl class="message-properties">
-        <dt>DS4 MAC</dt>
-        <dd><b>Required.</b> Bluetooth address of the DualShock4 to use. Other controllers are rejected.
-            The address is shown as "Device Address" in
-            <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a> (USB; not "Current Master", which is the paired host),
-            or in the Bluetooth settings of a PC / smartphone while the DualShock4 is in pairing mode.</dd>
+        <dt class="optional">DS4 MAC</dt>
+        <dd>Bluetooth address of the DualShock4 to use (the controller's own address).
+            <ul>
+                <li><b>Empty</b>: the ESP32 pairs with the first DualShock4 in pairing mode it finds,
+                    then keeps using that controller.</li>
+                <li><b>Set</b>: only this DualShock4 is paired and accepted. Other controllers are rejected.
+                    Recommended when other DualShock4s may be in pairing mode nearby.</li>
+            </ul>
+        </dd>
         <dt>Interval</dt>
         <dd>Polling interval of the controller state in milliseconds (10 or more).</dd>
     </dl>
 
-    <h3>Pairing</h3>
-    <p>First time only: hold <b>SHARE + PS</b> on the DualShock4 until the light bar double-flashes.
-       The ESP32 pairs automatically. After that, press <b>PS</b> to connect.
-       The DualShock4 remembers only one host. After it was paired with a PS4, PC or another ESP32,
-       hold <b>SHARE + PS</b> again to pair it with this ESP32.</p>
+    <h3>Connecting</h3>
+    <ol>
+        <li>Write the flow to the ESP32 and start it. DS4 MAC can be left empty. The node status becomes <code>pairing</code>.</li>
+        <li>Hold <b>SHARE + PS</b> on the DualShock4 until the light bar double-flashes (pairing mode).</li>
+        <li>The ESP32 finds it and pairs automatically. The status becomes <code>connected</code> and
+            <code>DS4: connected xx:xx:xx:xx:xx:xx</code> (the DualShock4's address) is shown in the debug sidebar.</li>
+        <li>From then on, just press <b>PS</b> to connect, also after the ESP32 restarts.</li>
+        <li>Optional: enter the shown address as DS4 MAC and write the flow again to use only this controller.</li>
+    </ol>
+    <p>No PC tool is needed. To check the address beforehand instead, use "Device Address" in
+       <a href="https://sixaxispairtool.en.lo4d.com/windows" target="_blank">SixaxisPairTool</a> (USB; it is only used to read
+       the address, not to write anything. "Current Master" is the paired host, not the controller),
+       or the Bluetooth settings of a PC / smartphone while the DualShock4 is in pairing mode.</p>
+
+    <h3>Re-pairing / switching</h3>
+    <ul>
+        <li>The DualShock4 remembers only one host. After it was paired with a PS4, PC or another ESP32,
+            hold <b>SHARE + PS</b> again: this ESP32 detects it and pairs again.</li>
+        <li>To use a different DualShock4: with DS4 MAC set, change it to the new address.
+            With DS4 MAC empty, send <code>msg.unpair = true</code> to a <code>dualshock4 out</code> node,
+            then put the new controller in pairing mode.</li>
+    </ul>
 
     <p>Only one DualShock4 connection is supported. Use a single configuration node.</p>
 </script>

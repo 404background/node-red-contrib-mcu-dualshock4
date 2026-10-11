@@ -34,10 +34,10 @@ Node-RED MCU Runtime
 1. Initialize Bluetooth Classic (Bluedroid) and the HID Host
 2. When not paired:
    - DS4 MAC set → connect to that address (retry every 2 seconds)
-   - DS4 MAC empty (Moddable SDK test program only; required in Node-RED) → inquiry for "Wireless Controller" (or CoD: Peripheral/Gamepad) and connect
+   - DS4 MAC empty → inquiry for "Wireless Controller" (or CoD: Peripheral/Gamepad) and connect to the first one found
    - Bond with Secure Simple Pairing (Just Works). The link key is stored in NVS
 3. When paired: register the bonded devices with the HID Host at start-up and accept the connection from the DualShock4 (PS button)
-   - While not connected, run a ~2.6 s inquiry every 6 seconds. When the DualShock4 with the DS4 MAC is found in pairing mode (SHARE + PS), delete the old bond and pair again (the DualShock4 remembers only one host, so this recovers after it was paired with another device)
+   - While not connected, run a ~2.6 s inquiry every 6 seconds. When the DualShock4 with the DS4 MAC (or, when empty, the bonded controller) is found in pairing mode (SHARE + PS), delete the old bond and pair again (the DualShock4 remembers only one host, so this recovers after it was paired with another device)
 4. After connecting, read Feature Report 0x02 to switch the DualShock4 to full reports (0x11)
 
 **Input report (DualShock4 → ESP32, interrupt channel):**
