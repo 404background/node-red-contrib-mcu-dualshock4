@@ -148,6 +148,11 @@ in / out ノードに接続状態が表示されます。
 | pairing | ペアリングモードのDS4を探索・接続中 |
 | waiting (press PS) | ペアリング済み。DS4のPSボタンが押されるのを待機中 |
 | connected | 接続中 |
+| connected (sent) | （out）接続中。直前のメッセージをDS4に送信済み |
+| disconnected | DS4との接続が切れた |
+| not connected | （out）未接続のときにメッセージが届いた。送信はしない |
+| no controller | dualshock4 config ノードが設定されていない |
+| （赤・その他の文言） | 設定ノードのエラー（`BT init failed ...` など） |
 
 ペアリングや接続に失敗した場合は、原因がデバッグサイドバーに警告として表示されます。
 

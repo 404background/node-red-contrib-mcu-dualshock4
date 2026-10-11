@@ -2,6 +2,16 @@
   "name": "@background404/node-red-contrib-mcu-dualshock4",
   "version": "0.1.0",
   "description": "Node-RED MCU node for communicating with DualShock4 via ESP32 Bluetooth Classic",
+  "files": [
+    "node/",
+    "native/",
+    "examples/",
+    "docs/",
+    "test/moddable/",
+    "manifest.json",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=14.0.0"
   },

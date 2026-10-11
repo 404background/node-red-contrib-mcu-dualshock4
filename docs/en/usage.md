@@ -148,6 +148,11 @@ The in / out nodes show the connection state.
 | pairing | Searching for / connecting to a DualShock4 in pairing mode |
 | waiting (press PS) | Paired. Waiting for the PS button on the DualShock4 |
 | connected | Connected |
+| connected (sent) | (out) Connected, and the last message was sent to the DualShock4 |
+| disconnected | The DualShock4 was disconnected |
+| not connected | (out) A message arrived while the DualShock4 is not connected. It is not sent |
+| no controller | The dualshock4 config node is not set |
+| (red, other text) | Error from the config node (e.g. `BT init failed ...`) |
 
 If pairing or connecting fails, the reason is shown as a warning in the debug sidebar.
 
