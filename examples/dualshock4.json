@@ -1,15 +1,26 @@
 [
     {
+        "id": "d54c0f1000000000",
+        "type": "tab",
+        "label": "DualShock4",
+        "disabled": false,
+        "info": "DualShock4 on an ESP32 (Bluetooth Classic).\nLeave DS4 MAC empty to pair with the first DualShock4 in pairing mode (hold SHARE + PS until the light bar double-flashes). After that, press PS to connect.",
+        "_mcu": {
+            "mcu": true
+        }
+    },
+    {
         "id": "d54c0f1000000001",
         "type": "comment",
         "name": "DualShock4 sample (ESP32 / Node-RED MCU)",
-        "info": "Set the Bluetooth address of your DualShock4 in DS4 MAC of the \"DualShock4\" configuration node (required).\n\nFirst time: hold SHARE + PS on the DualShock4 until the light bar double-flashes.\nThe ESP32 pairs automatically. After that, press PS to connect.",
+        "info": "DS4 MAC of the \"DualShock4\" configuration node is optional: when it is empty, the ESP32 pairs with the first DualShock4 in pairing mode and keeps that controller.\n\nFirst time: hold SHARE + PS on the DualShock4 until the light bar double-flashes.\nAfter that, press PS to connect.",
         "_mcu": {
             "mcu": true
         },
         "x": 200,
         "y": 40,
-        "wires": []
+        "wires": [],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1a00000010",
@@ -26,7 +37,8 @@
             [
                 "d54c0f1d00000011"
             ]
-        ]
+        ],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1d00000011",
@@ -44,7 +56,8 @@
         },
         "x": 310,
         "y": 100,
-        "wires": []
+        "wires": [],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1a00000020",
@@ -68,7 +81,8 @@
             [
                 "d54c0f1f00000021"
             ]
-        ]
+        ],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1f00000021",
@@ -90,7 +104,8 @@
             [
                 "d54c0f1b00000030"
             ]
-        ]
+        ],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1e00000031",
@@ -117,7 +132,8 @@
             [
                 "d54c0f1b00000030"
             ]
-        ]
+        ],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1e00000032",
@@ -144,7 +160,8 @@
             [
                 "d54c0f1b00000030"
             ]
-        ]
+        ],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1e00000033",
@@ -171,7 +188,8 @@
             [
                 "d54c0f1b00000030"
             ]
-        ]
+        ],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1e00000034",
@@ -198,7 +216,8 @@
             [
                 "d54c0f1b00000030"
             ]
-        ]
+        ],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1b00000030",
@@ -210,7 +229,8 @@
         },
         "x": 580,
         "y": 240,
-        "wires": []
+        "wires": [],
+        "z": "d54c0f1000000000"
     },
     {
         "id": "d54c0f1c00000001",
